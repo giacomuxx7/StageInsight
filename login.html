@@ -1,11 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>PCTO — Accesso</title>
 </head>
+<style>
+    .login-box {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .login-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 600;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .login-sub {
+      font-size: 14px;
+      color: var(--gray);
+      margin-bottom: 36px;
+    }
+
+    .input-icon-wrap {
+      position: relative;
+      margin-bottom: 14px;
+    }
+    .input-icon-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      pointer-events: none;
+    }
+    .input-icon-wrap input {
+      padding-left: 40px;
+    }
+</style>
 <body>
 
-<h2>Login</h2>
+<div class="split-right">
+    <div class="login-box">
+      <div class="login-title">ACCESSO</div>
+        <div class="login-sub">Inserisci le tue credenziali</div>
+
+        <div class="input-icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <input type="email" id="email" placeholder="Email">
+      </div>
+
+      <div class="input-icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" id="password" placeholder="Password">
+      </div>
+
+
+    </div>
+</div>
+
 
 <form method="post">
     <input type="text" name="username" placeholder="Username" required><br><br>
