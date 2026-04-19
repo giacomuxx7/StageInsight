@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visualizzazione enti</title>    <!quello che vedi nella linguetta della pagina
+</head>
+<body>
+<br>
+    <form method="get" action="/products">
+    </form>
+
+
+<br>
+    <nax>
+        <a href="/products/add">Aggiungi prodotto</a> <! link che mi porta alla pagina per modificare il prodotto (file add_edit.html)>
+    </nax>
+
+
+<!TABELLA>
+
+<br>
+<hr>
+
+{% if enti %}
+        <table>
+          <tr>
+            <th>name  </th>
+            <th>contact  </th>
+            <th>phone  </th>
+            <th>address  </th>
+            <th>sector  </th>
+            <th>capacity  </th>
+            <th>tutor  </th>
+            <th>tutor_phone  </th>
+            <th>schedule  </th>
+
+          </tr>
+          {% for ente in enti %} <!scorro dizionario di un prodotto e metto i suoi valori nella colonna giusta>
+             <tr>
+                <td>{{ ente['name'] }}</td>
+                <td>{{ ente['contact']}}</td>
+                <td>{{ ente['phone'] }}</td>
+                 <td>{{ ente['address'] }}</td>
+                 <td>{{ ente['sector'] }}</td>
+                 <td>{{ ente['site'] }}</td>
+                 <td>{{ ente['capacity'] }}</td>
+                 <td>{{ ente['tutor'] }}</td>
+                 <td>{{ ente['tutor_phone'] }}</td>
+                    <td>
+                    <td>
+                    {% set first = True %}
+                    {% for day in ente['schedule'] %}
+                        {% set intervals = ente['schedule'][day] %}
+                        {% if intervals %}
+                            {% if not first %}, {% end %}
+                            {{ day }}:
+                            {% for i in intervals %}
+                                {{ i["start"] }}-{{ i["end"] }}{% if i != intervals[-1] %}/{% end %}
+                            {% end %}
+                            {% set first = False %}
+                        {% end %}
+                    {% end %}
+</td>
+                    </td>
+                 <td>
+                    <nax>
+                        <a href="/enti/edit/{{ ente['id'] }}">Modifica</a>
+                    </nax>
+                </td>
+                <td>
+                    <form action="/products/delete/{{dict['name']}}" method="post">
+                        <input type="submit" value="Elimina" > <! bottone che in base all'id del prodotto lo elimina (funzione post del delete) >
+                    </form>
+                </td>
+             </tr>
+          {% end %}
+        </table>
+{% else %}
+    <p> Nessun prodotto presente</p> <!se non ci sono prodotti nella lista>
+{% end %}
+</body>
+</html>
