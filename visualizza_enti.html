@@ -18,64 +18,121 @@
 <!TABELLA>
 
 <br>
-<hr>
+<hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
+
+<style>
+  .tbl-wrap {
+    border-radius: 12px;
+    border: 0.5px solid #e0e0e0;
+    overflow: hidden;
+    background: #fff;
+  }
+  .tbl-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: sans-serif;
+  }
+  .tbl-wrap th {
+    background: #f7f7f7;
+    color: #888;
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 0.5px solid #e0e0e0;
+  }
+  .tbl-wrap td {
+    padding: 10px 12px;
+    border-bottom: 0.5px solid #e0e0e0;
+    color: #1a1a1a;
+    vertical-align: middle;
+  }
+  .tbl-wrap tr:last-child td { border-bottom: none; }
+  .tbl-wrap tr:hover td { background: #fafafa; }
+
+  .sched { font-size: 12px; color: #888; }
+
+  .btn-modifica {
+    font-size: 12px;
+    color: #1565c0;
+    text-decoration: none;
+    padding: 3px 9px;
+    border-radius: 8px;
+    border: 0.5px solid #90caf9;
+    margin-right: 6px;
+  }
+  .btn-modifica:hover { background: #e3f2fd; }
+
+  input[type="submit"] {
+    font-size: 12px;
+    background: none;
+    border: 0.5px solid #ef9a9a;
+    color: #c62828;
+    padding: 3px 9px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  input[type="submit"]:hover { background: #ffebee; }
+</style>
 
 {% if enti %}
-        <table>
-          <tr>
-            <th>name  </th>
-            <th>contact  </th>
-            <th>phone  </th>
-            <th>address  </th>
-            <th>sector  </th>
-            <th>capacity  </th>
-            <th>tutor  </th>
-            <th>tutor_phone  </th>
-            <th>schedule  </th>
-
-          </tr>
-          {% for ente in enti %} <!scorro dizionario di un prodotto e metto i suoi valori nella colonna giusta>
-             <tr>
-                <td>{{ ente['name'] }}</td>
-                <td>{{ ente['contact']}}</td>
-                <td>{{ ente['phone'] }}</td>
-                 <td>{{ ente['address'] }}</td>
-                 <td>{{ ente['sector'] }}</td>
-                 <td>{{ ente['site'] }}</td>
-                 <td>{{ ente['capacity'] }}</td>
-                 <td>{{ ente['tutor'] }}</td>
-                 <td>{{ ente['tutor_phone'] }}</td>
-                    <td>
-                    <td>
-                    {% set first = True %}
-                    {% for day in ente['schedule'] %}
-                        {% set intervals = ente['schedule'][day] %}
-                        {% if intervals %}
-                            {% if not first %}, {% end %}
-                            {{ day }}:
-                            {% for i in intervals %}
-                                {{ i["start"] }}-{{ i["end"] }}{% if i != intervals[-1] %}/{% end %}
-                            {% end %}
-                            {% set first = False %}
-                        {% end %}
-                    {% end %}
-</td>
-                    </td>
-                 <td>
-                    <nax>
-                        <a href="/enti/edit/{{ ente['id'] }}">Modifica</a>
-                    </nax>
-                </td>
-                <td>
-                    <form action="/products/delete/{{dict['name']}}" method="post">
-                        <input type="submit" value="Elimina" > <! bottone che in base all'id del prodotto lo elimina (funzione post del delete) >
-                    </form>
-                </td>
-             </tr>
-          {% end %}
-        </table>
+  <div class="tbl-wrap">
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Contact</th>
+        <th>Phone</th>
+        <th>Address</th>
+        <th>Sector</th>
+        <th>Site</th>
+        <th>Capacity</th>
+        <th>Tutor</th>
+        <th>Tutor phone</th>
+        <th>Schedule</th>
+        <th>Azioni</th>
+      </tr>
+      {% for ente in enti %} <!scorro dizionario di un prodotto e metto i suoi valori nella colonna giusta>
+        <tr>
+          <td>{{ ente['name'] }}</td>
+          <td>{{ ente['contact'] }}</td>
+          <td>{{ ente['phone'] }}</td>
+          <td>{{ ente['address'] }}</td>
+          <td>{{ ente['sector'] }}</td>
+          <td>{{ ente['site'] }}</td>
+          <td>{{ ente['capacity'] }}</td>
+          <td>{{ ente['tutor'] }}</td>
+          <td>{{ ente['tutor_phone'] }}</td>
+          <td class="sched">
+            {% set first = True %}
+            {% for day in ente['schedule'] %}
+              {% set intervals = ente['schedule'][day] %}
+              {% if intervals %}
+                {% if not first %}, {% end %}
+                {{ day }}:
+                {% for i in intervals %}
+                  {{ i["start"] }}-{{ i["end"] }}{% if i != intervals[-1] %}/{% end %}
+                {% end %}
+                {% set first = False %}
+              {% end %}
+            {% end %}
+          </td>
+          <td>
+            <nax>
+              <a class="btn-modifica" href="/enti/edit/{{ ente['id'] }}">Modifica</a>
+            </nax>
+            <form action="/enti/delete/{{ ente['name'] }}" method="post" style="display:inline;"> <!bottone che in base all'id del prodotto lo elimina (funzione post del delete)>
+              <input type="submit" value="Elimina">
+            </form>
+          </td>
+        </tr>
+      {% end %}
+    </table>
+  </div>
 {% else %}
-    <p> Nessun prodotto presente</p> <!se non ci sono prodotti nella lista>
+  <p>Nessun ente presente</p> <!se non ci sono enti nella lista>
 {% end %}
 </body>
 </html>
