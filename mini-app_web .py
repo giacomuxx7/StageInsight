@@ -1,6 +1,7 @@
 import asyncio
 import tornado.web
 import tornado.escape
+import ast
 
 demo_entities = [
     {"id":0,"name": "Caritas", "contact": "info@caritas.it", "phone": "02-1234567",
@@ -112,33 +113,39 @@ class MainHandler(tornado.web.RequestHandler):
 class AddEnteHandler(tornado.web.RequestHandler):
     def get(self):
 #pubblico la pagina add_edit.html
-        self.render("add_edit.html",nome=None)
+        self.render("add_edit.html",name=None)
 
     def post(self):
 #prendo il valore delle variabili del nuovo prodotto, creo il nuovo prodotto, e ritorno alla pagina iniziale(/products)
-        nome = self.get_body_argument("nome")
-        prezzo = self.get_body_argument("prezzo")
-        if self.get_body_argument("disponibile", None):
-            disponibile = True
-        else:
-            disponibile = False
-        categoria = self.get_body_argument("categoria")
+        name = self.get_body_argument("name")
+        contact = self.get_body_argument("contact")
+        phone = self.get_body_argument("phone")
+        address = self.get_body_argument("address")
+        sector = self.get_body_argument("sector")
+        site = self.get_body_argument("site")
+        capacity = self.get_body_argument("capacity")
+        tutor = self.get_body_argument("tutor")
+        tutor_phone = self.get_body_argument("tutor_phone")
+        schedule = self.get_body_argument("schedule")
 
         #valori base alle variabili
         id=1
         lista=[]
         #vado a creare una lista con gli id già utilizzati
-        for product in products:
-            lista.append(product["id"])
+        for ente in demo_entities:
+            lista.append(ente["id"])
         #scorro la variabile fino a che trovo una non corrispondenza con un id già utilizzato
         while id < len(lista)+2:
             if id in lista:
                 id = id+1
             else:
                 break
-        new_product = {"id":id,"nome":nome,"categoria":categoria,"prezzo":prezzo,"disponibile":disponibile}
-        products.append(new_product)
-        self.redirect("/products")
+        print(schedule)
+        print(type(schedule))
+        schedule= ast.literal_eval(schedule)
+        new_ente = {"id":id,"name":name,"contact":contact,"phone":phone,"address":address,"sector":sector,"site":site,"capacity":capacity,"tutor":tutor,"tutor_phone":tutor_phone,"schedule":schedule}
+        demo_entities.append(new_ente)
+        self.redirect("/ente")
 
 class EditEnteHandler(tornado.web.RequestHandler):
     def get(self,id):
@@ -147,7 +154,7 @@ class EditEnteHandler(tornado.web.RequestHandler):
         print(id)
         for ente in demo_entities:
             if ente["id"] == id:
-                nome = ente["name"]
+                name = ente["name"]
                 contact = ente["contact"]
                 phone = ente["phone"]
                 address = ente["address"]
@@ -159,34 +166,44 @@ class EditEnteHandler(tornado.web.RequestHandler):
                 schedule = ente["schedule"]
 
     # pubblico la pagina add_edit.html, con le variabili modificate
-        self.render("add_edit.html", nome=nome,categoria=categoria,prezzo=prezzo,disponibile=disponibile,id=id)
+        self.render("add_edit.html",id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule=schedule )
 
     def post(self,id):
 #prendo i valori delle variabili modificate e cercando dall'id del prodotto, sostituisco i valori di ogni variabile e ritorno alla pagina iniziale(/products)
-        nome = self.get_body_argument("nome")
-        prezzo = self.get_body_argument("prezzo")
-        if self.get_body_argument("disponibile", None):
-            disponibile = True
-        else:
-            disponibile = False
-        categoria = self.get_body_argument("categoria")
+        name = self.get_body_argument("name")
+        contact = self.get_body_argument("contact")
+        phone = self.get_body_argument("phone")
+        address = self.get_body_argument("address")
+        sector = self.get_body_argument("sector")
+        site = self.get_body_argument("site")
+        capacity = self.get_body_argument("capacity")
+        tutor = self.get_body_argument("tutor")
+        tutor_phone = self.get_body_argument("tutor_phone")
+        schedule = self.get_body_argument("schedule")
+        schedule= ast.literal_eval(schedule)
         id=int(id)
-        for product in products:
-            if product["id"] == id:
-                product["nome"] = nome
-                product["prezzo"] = prezzo
-                product["disponibile"] = disponibile
-                product["categoria"] = categoria
-        self.redirect("/products")
+        for ente in demo_entities:
+            if ente["id"] == id:
+                ente["name"] = name
+                ente["contact"] = contact
+                ente["phone"] = phone
+                ente["address"] = address
+                ente["sector"] = sector
+                ente["site"] = site
+                ente["capacity"] = capacity
+                ente["tutor"] = tutor
+                ente["tutor_phone"] = tutor_phone
+                ente["schedule"] = schedule
+        self.redirect("/ente")
 
 class DeleteEnteHandler(tornado.web.RequestHandler):
 #cerco prodotto in base al suo id e lo elimino dalla lista dei prodotti e ritorno alla pagina iniziale(/products)
     def post(self,id):
         id=int(id)
-        for product in products:
-            if product["id"] == id:
-                products.remove(product)
-        self.redirect("/products")
+        for ente in demo_entities:
+            if ente["id"] == id:
+                demo_entities.remove(ente)
+        self.redirect("/ente")
 
 
 class EnteHandler(tornado.web.RequestHandler):

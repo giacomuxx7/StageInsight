@@ -1,48 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Catalogo Prodotti</title>    <!quello che vedi nella linguetta della pagina>
+    <title>Catalogo Prodotti</title>
 </head>
 <body>
-    {% if nome %} <! controllo se il prodotto ha il nome(se in generale esiste), e metto i nuovi valori che utente inserisce nei vari campi. Questo vuol dire che utente vuole modificare il prodotto>
-    <form method="post" action="/products/edit/{{id}}">
-        <input type="text" name="nome" value={{nome}} placeholder="Nome" required>
-        <input type="text" name="prezzo" value={{prezzo}} placeholder="Prezzo" required>
-        {% if disponibile %}
-            <input type="checkbox" name="disponibile" value="vero" checked> Disponibile
-        {% else %}
-            <input type="checkbox" name="disponibile" value="vero" > Disponibile
-        {% end %}
-        {% if categoria == "Elettronica" %} <! controllo la categoria per metterla nella tendina>
-            <select name="categoria" required>
-                <option value="Elettronica" selected>Elettronica</option>
-                <option value="Abbigliamento">Abbigliamento</option>
-            </select>
-        {% else %}
-            <select name="categoria" required>
-                <option value="Elettronica">Elettronica</option>
-                <option value="Abbigliamento" selected>Abbigliamento</option>
-            </select>
-        {% end %}
+    {% if name %}
+    <form method="post" action="/enti/edit/{{id}}">
+        <input type="text" name="name" value="{{name}}" placeholder="text" required>name
+        <br>
+        <input type="text" name="contact" value="{{contact}}" placeholder="text" required>contact
+        <br>
+        <input type="text" name="phone" value="{{phone}}" placeholder="text" required>phone
+        <br>
+        <input type="text" name="address" value="{{address}}" placeholder="text" required>address
+        <br>
+        <input type="text" name="sector" value="{{sector}}" placeholder="text" required>sector
+        <br>
+        <input type="text" name="site" value="{{site}}" placeholder="text" required>site
+        <br>
+        <input type="text" name="capacity" value="{{capacity}}" placeholder="text" required>capacity
+        <br>
+        <input type="text" name="tutor" value="{{tutor}}" placeholder="text" required>tutor
+        <br>
+        <input type="text" name="tutor_phone" value="{{tutor_phone}}" placeholder="text" required>tutor_phone
+        <br>
+        <input type="text" name="schedule" value="{{schedule}}" placeholder="text" required>schedule
+        <br>
         <input type="submit" value="Modifica">
     </form>
-    {% else %} <! se prodotto non esiste (non ha un nome), creo un nuovo prodotto. Questo vuol dire che utente vuole creare nuovo prodotto>
-    <form method="post" action="/products/add">
-        <input type="text" name="nome"  placeholder="Nome" required>
-        <input type="text" name="prezzo"  placeholder="Prezzo" required>
-        <input type="checkbox" name="disponibile" value="vero"> Disponibile
-        <select name="categoria" required>
-            <option value="" disabled selected>Categoria</option>
-            <option value="Elettronica">Elettronica</option>
-            <option value="Abbigliamento">Abbigliamento</option>
-        </select>
-        <input type="submit" value="Aggiungi prodotto">
+    {% else %}
+    <form method="post" action="/enti/add">
+        <input type="text" name="name" placeholder="Nome" required>
+        <input type="text" name="contact" placeholder="Contact" required>
+        <input type="text" name="phone" placeholder="Phone" required>
+        <input type="text" name="address" placeholder="Address" required>
+        <input type="text" name="sector" placeholder="Sector" required>
+        <input type="text" name="site" placeholder="Site" required>
+        <input type="text" name="capacity" placeholder="Capacity" required>
+        <input type="text" name="tutor" placeholder="Tutor" required>
+        <input type="text" name="tutor_phone" placeholder="Tutor phone" required>
+        <input type="text" name="schedule" placeholder="Schedule" required>
+        <input type="submit" value="Aggiungi">
     </form>
     {% end %}
 
 <br>
     <nax>
-        <a href="/products">Torna alla lista</a>
+        <a href="/ente">Torna alla lista</a>
     </nax>
 </body>
 </html>
