@@ -76,6 +76,23 @@
     cursor: pointer;
   }
   input[type="submit"]:hover { background: #ffebee; }
+
+    /* di default: bottoni affiancati */
+.azioni-cell {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;   /* se proprio non ci stanno, vanno a capo */
+}
+
+/* sotto 600px: uno sotto l'altro */
+@media (max-width: 600px) {
+  .azioni-cell {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 </style>
 
 {% if enti %}
@@ -119,14 +136,14 @@
               {% end %}
             {% end %}
           </td>
-          <td>
-            <nax>
-              <a class="btn-modifica" href="/enti/edit/{{ ente['id'] }}">Modifica</a>
-            </nax>
-            <form action="/enti/delete/{{ ente['name'] }}" method="post" style="display:inline;"> <!bottone che in base all'id del prodotto lo elimina (funzione post del delete)>
-              <input type="submit" value="Elimina">
-            </form>
-          </td>
+          <td class="azioni-cell">
+                <nax>
+                    <a class="btn-modifica" href="/enti/edit/{{ ente['id'] }}">Modifica</a>
+                </nax>
+                <form action="/enti/delete/{{ ente['name'] }}" method="post" style="display:inline;">
+                    <input type="submit" value="Elimina">
+                </form>
+            </td>
         </tr>
       {% end %}
     </table>
