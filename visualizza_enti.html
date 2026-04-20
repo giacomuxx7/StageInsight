@@ -2,9 +2,22 @@
 <html>
 <head>
     <title>Visualizzazione enti</title>    <!quello che vedi nella linguetta della pagina
+        <!-- viewport: FONDAMENTALE — senza questo il browser su schermi piccoli/divisi
+         fa finta di avere 980px e rimpicciolisce tutto invece di adattarlo -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 </head>
 <body>
 <style>
+  /* Reset base */
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #f9f9f9;
+  }
+
   /* ── HEADER ── */
   .admin-header {
     display: flex;
@@ -64,6 +77,11 @@
   }
 
   .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
+
+    /* ── CONTENUTO PAGINA ── */
+  .page-body {
+    padding: 1.25rem 1rem;
+  }
 
   /* ── TABELLA (invariata) ── */
   .tbl-wrap {
@@ -174,72 +192,75 @@
   </div>
 </div>
 
-<! <hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
+<div class="page-body">
 
-<!TABELLA>
+    <! <hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
 
-<br>
-<hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
+    <!TABELLA>
 
-{% if enti %}
-  <div class="tbl-wrap">
-      <!-- bottone in alto a destra sopra la tabella -->
-    <div style="padding: 10px 12px; border-bottom: 0.5px solid #e0e0e0; display: flex; justify-content: flex-end;">
-      <a class="btn-aggiungi" href="/enti/add">+ Aggiungi ente</a>
-    </div>
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Contact</th>
-        <th>Phone</th>
-        <th>Address</th>
-        <th>Sector</th>
-        <th>Site</th>
-        <th>Capacity</th>
-        <th>Tutor</th>
-        <th>Tutor phone</th>
-        <th>Schedule</th>
-        <th>Azioni</th>
-      </tr>
-      {% for ente in enti %} <!scorro dizionario di un prodotto e metto i suoi valori nella colonna giusta>
-        <tr>
-          <td>{{ ente['name'] }}</td>
-          <td>{{ ente['contact'] }}</td>
-          <td>{{ ente['phone'] }}</td>
-          <td>{{ ente['address'] }}</td>
-          <td>{{ ente['sector'] }}</td>
-          <td>{{ ente['site'] }}</td>
-          <td>{{ ente['capacity'] }}</td>
-          <td>{{ ente['tutor'] }}</td>
-          <td>{{ ente['tutor_phone'] }}</td>
-          <td class="sched">
-            {% set first = True %}
-            {% for day in ente['schedule'] %}
-              {% set intervals = ente['schedule'][day] %}
-              {% if intervals %}
-                {% if not first %}, {% end %}
-                {{ day }}:
-                {% for i in intervals %}
-                  {{ i["start"] }}-{{ i["end"] }}{% if i != intervals[-1] %}/{% end %}
+    <br>
+    <hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
+
+    {% if enti %}
+      <div class="tbl-wrap">
+          <!-- bottone in alto a destra sopra la tabella -->
+        <div style="padding: 10px 12px; border-bottom: 0.5px solid #e0e0e0; display: flex; justify-content: flex-end;">
+          <a class="btn-aggiungi" href="/enti/add">+ Aggiungi ente</a>
+        </div>
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Sector</th>
+            <th>Site</th>
+            <th>Capacity</th>
+            <th>Tutor</th>
+            <th>Tutor phone</th>
+            <th>Schedule</th>
+            <th>Azioni</th>
+          </tr>
+          {% for ente in enti %} <!scorro dizionario di un prodotto e metto i suoi valori nella colonna giusta>
+            <tr>
+              <td>{{ ente['name'] }}</td>
+              <td>{{ ente['contact'] }}</td>
+              <td>{{ ente['phone'] }}</td>
+              <td>{{ ente['address'] }}</td>
+              <td>{{ ente['sector'] }}</td>
+              <td>{{ ente['site'] }}</td>
+              <td>{{ ente['capacity'] }}</td>
+              <td>{{ ente['tutor'] }}</td>
+              <td>{{ ente['tutor_phone'] }}</td>
+              <td class="sched">
+                {% set first = True %}
+                {% for day in ente['schedule'] %}
+                  {% set intervals = ente['schedule'][day] %}
+                  {% if intervals %}
+                    {% if not first %}, {% end %}
+                    {{ day }}:
+                    {% for i in intervals %}
+                      {{ i["start"] }}-{{ i["end"] }}{% if i != intervals[-1] %}/{% end %}
+                    {% end %}
+                    {% set first = False %}
+                  {% end %}
                 {% end %}
-                {% set first = False %}
-              {% end %}
-            {% end %}
-          </td>
-          <td class="azioni-cell">
-            <nax>
-                <a class="btn-modifica" href="/enti/edit/{{ ente['id'] }}">Modifica</a>
-            </nax>
-            <form action="/enti/delete/{{ ente['id'] }}" method="post" style="display:inline;">
-                <input type="submit" value="Elimina">
-            </form>
-        </td>
-        </tr>
-      {% end %}
-    </table>
-  </div>
-{% else %}
-  <p>Nessun ente presente</p> <!se non ci sono enti nella lista>
-{% end %}
+              </td>
+              <td class="azioni-cell">
+                <nax>
+                    <a class="btn-modifica" href="/enti/edit/{{ ente['id'] }}">Modifica</a>
+                </nax>
+                <form action="/enti/delete/{{ ente['id'] }}" method="post" style="display:inline;">
+                    <input type="submit" value="Elimina">
+                </form>
+            </td>
+            </tr>
+          {% end %}
+        </table>
+      </div>
+    {% else %}
+      <p style="color:#888; font-size:14px;">Nessun ente presente</p> <!se non ci sono enti nella lista>
+    {% end %}
+</div>
 </body>
 </html>

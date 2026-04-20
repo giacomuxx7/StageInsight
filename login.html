@@ -2,21 +2,24 @@
 <html>
 <head>
     <title>PCTO — Accesso</title>
+    <!-- viewport: FONDAMENTALE per il responsive su mobile/schermo diviso -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 </head>
 <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* centra verticalmente e orizzontalmente su tutta la pagina */
     body {
-        margin: 0;
         min-height: 100vh;
         display: flex;
-        align-items: center;       /* centro verticale */
-        justify-content: center;   /* centro orizzontale */
+        align-items: center;
+        justify-content: center;
         background: #f5f5f5;
         font-family: sans-serif;
+        /* padding laterale: evita che la box tocchi i bordi su schermi stretti */
+        padding: 1rem;
     }
 
-    /* box bianca che contiene tutto */
     .login-box {
         width: 100%;
         max-width: 360px;
@@ -24,7 +27,6 @@
         border: 0.5px solid #e0e0e0;
         border-radius: 12px;
         padding: 2rem;
-        box-sizing: border-box;    /* padding non sfora la larghezza */
     }
 
     .login-title {
@@ -69,9 +71,7 @@
         box-sizing: border-box;
     }
 
-    .input-icon-wrap input:focus {
-        border-color: #888;
-    }
+    .input-icon-wrap input:focus { border-color: #888; }
 
     input[type="submit"] {
         width: 100%;
@@ -84,8 +84,12 @@
         cursor: pointer;
     }
 
-    input[type="submit"]:hover {
-        background: #e8e8e8;
+    input[type="submit"]:hover { background: #e8e8e8; }
+
+     /* su schermi molto stretti (< 400px) riduci il padding del box */
+    @media (max-width: 400px) {
+        .login-box { padding: 1.25rem; }
+        .login-title { font-size: 28px; }
     }
 </style>
 <body>

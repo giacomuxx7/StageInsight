@@ -2,6 +2,8 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+<!-- viewport: senza questo su schermi piccoli/divisi
+     la griglia a 2 colonne esce dallo schermo -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PCTO — {% if name %}Modifica{% else %}Aggiungi{% end %} Ente</title>
 <style>
@@ -14,7 +16,8 @@
     display: flex;
     align-items: center;       /* centra verticalmente */
     justify-content: center;   /* centra orizzontalmente */
-    padding: 2rem;
+    /* padding laterale: evita che la box tocchi i bordi */
+    padding: 1.5rem 1rem;
   }
 
   /* rettangolo centrale */
@@ -32,11 +35,13 @@
     padding: 20px 24px 16px;
     border-bottom: 0.5px solid #e0e0e0;
   }
+
   .box-header h2 {
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 2px;
   }
+
   .box-header p {
     font-size: 13px;
     color: #888;
@@ -45,11 +50,22 @@
   /* corpo con i campi */
   .box-body { padding: 20px 24px; }
 
-  /* griglia 2 colonne */
+  /* griglia 2 colonne  su schermi larghi */
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
+  }
+
+  /* sotto 480px (schermo diviso stretto o mobile):
+     tutto su una colonna sola, più leggibile */
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: 1fr; }
+    /* su colonna singola lo span2 non serve più */
+    .span2 { grid-column: span 1; }
+    .box-header { padding: 16px; }
+    .box-body   { padding: 16px; }
+    .box-footer { padding: 12px 16px; }
   }
 
   /* campo che occupa entrambe le colonne (indirizzo) */
@@ -84,6 +100,8 @@
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+    /* su schermi molto stretti i bottoni si impilano */
+    flex-wrap: wrap;
   }
 
   .btn-cancel {
