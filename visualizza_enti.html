@@ -4,27 +4,68 @@
     <title>Visualizzazione enti</title>    <!quello che vedi nella linguetta della pagina
 </head>
 <body>
-    <h2>Benvenuto {{ user }}</h2>
-    <br>
-    <a href="/enti">Visualizza enti</a>
-    <br>
-    <br>
-    <form action="/" method="get">
-        <button type="submit">Logout</button>
-    </form>
-    <br>
-    <br>
-    <nax>
-        <a href="/enti/add">Aggiungi enti</a> <! link che mi porta alla pagina per modificare il prodotto (file add_edit.html)>
-    </nax>
-
-
-<!TABELLA>
-
-<br>
-<hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
-
 <style>
+  /* ── HEADER ── */
+  .admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;        /* su mobile va a capo */
+    gap: 12px;
+    padding: 1.5rem 1rem 1.25rem;
+  }
+
+  .admin-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+    font-family: sans-serif;
+  }
+
+  .nav-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 0.5px solid #ccc;
+    color: #1a1a1a;
+    background: #fff;
+    cursor: pointer;
+    font-family: sans-serif;
+  }
+
+  .nav-btn:hover { background: #f5f5f5; }
+
+  .nav-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  .logout-btn {
+    font-size: 13px;
+    background: none;
+    border: 0.5px solid #ccc;
+    color: #888;
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: sans-serif;
+  }
+
+  .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
+
+  /* ── TABELLA (invariata) ── */
   .tbl-wrap {
     border-radius: 12px;
     border: 0.5px solid #e0e0e0;
@@ -56,9 +97,7 @@
   }
   .tbl-wrap tr:last-child td { border-bottom: none; }
   .tbl-wrap tr:hover td { background: #fafafa; }
-
   .sched { font-size: 12px; color: #888; }
-
   .btn-modifica {
     font-size: 12px;
     color: #1565c0;
@@ -69,7 +108,6 @@
     margin-right: 6px;
   }
   .btn-modifica:hover { background: #e3f2fd; }
-
   input[type="submit"] {
     font-size: 12px;
     background: none;
@@ -80,24 +118,62 @@
     cursor: pointer;
   }
   input[type="submit"]:hover { background: #ffebee; }
-
-    /* di default: bottoni affiancati */
-    .azioni-cell {
-      display: flex;
-      flex-direction: row;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: wrap;   /* se proprio non ci stanno, vanno a capo */
-    }
-
-    /* sotto 600px: uno sotto l'altro */
-    @media (max-width: 600px) {
-      .azioni-cell {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
+  .azioni-cell {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 600px) {
+    .azioni-cell { flex-direction: column; align-items: flex-start; }
+  }
 </style>
+
+<!-- HEADER -->
+<div class="admin-header">
+  <h1 class="admin-title">Benvenuto, {{ user }}</h1>
+
+  <div class="nav-btns">
+    <!-- bottone Enti: porta alla pagina corrente (lista enti) -->
+    <a class="nav-btn" href="/enti">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Enti
+    </a>
+
+    <!-- bottone Grafici -->
+    <a class="nav-btn" href="/grafici">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Grafici
+    </a>
+
+    <!-- bottone Questionari -->
+    <a class="nav-btn" href="/questionari">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Questionari
+    </a>
+
+    <!-- bottone Logout separato -->
+    <form action="/" method="get" style="margin:0;">
+      <button type="submit" class="logout-btn">Esci</button>
+    </form>
+  </div>
+</div>
+
+<hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
+
+<!-- link testuale Aggiungi enti -->
+<div style="margin-bottom: 1rem; padding: 0 1rem;">
+  <a href="/enti/add" style="font-size:13px; color:#1565c0;">+ Aggiungi ente</a>
+</div>
+
+
+
+
+<!TABELLA>
+
+<br>
+<hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
 
 {% if enti %}
   <div class="tbl-wrap">
