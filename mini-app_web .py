@@ -56,13 +56,13 @@ class LoginHandler(tornado.web.RequestHandler):
         # login semplice (hardcoded)
         if username == "admin" and password == "":
             self.set_secure_cookie("user", "admin")
-            self.redirect("/home")
+            self.redirect("/enti")
         elif username == "ari" and password == "":
             self.set_secure_cookie("user", "studente")
-            self.redirect("/products")
+            self.redirect("/enti")
         elif username == "ref" and password == "":
             self.set_secure_cookie("user", "referente")
-            self.redirect("/products")
+            self.redirect("/enti")
         else:
             self.render("login.html", error="Sei scemo")
 
@@ -145,7 +145,7 @@ class AddEnteHandler(tornado.web.RequestHandler):
         schedule= ast.literal_eval(schedule)
         new_ente = {"id":id,"name":name,"contact":contact,"phone":phone,"address":address,"sector":sector,"site":site,"capacity":capacity,"tutor":tutor,"tutor_phone":tutor_phone,"schedule":schedule}
         demo_entities.append(new_ente)
-        self.redirect("/ente")
+        self.redirect("/enti")
 
 class EditEnteHandler(tornado.web.RequestHandler):
     def get(self,id):
@@ -194,7 +194,7 @@ class EditEnteHandler(tornado.web.RequestHandler):
                 ente["tutor"] = tutor
                 ente["tutor_phone"] = tutor_phone
                 ente["schedule"] = schedule
-        self.redirect("/ente")
+        self.redirect("/enti")
 
 class DeleteEnteHandler(tornado.web.RequestHandler):
 #cerco prodotto in base al suo id e lo elimino dalla lista dei prodotti e ritorno alla pagina iniziale(/products)
@@ -203,14 +203,20 @@ class DeleteEnteHandler(tornado.web.RequestHandler):
         for ente in demo_entities:
             if ente["id"] == id:
                 demo_entities.remove(ente)
-        self.redirect("/ente")
+        self.redirect("/enti")
 
 
 class EnteHandler(tornado.web.RequestHandler):
     def get(self):
+        user = self.get_secure_cookie("user")
+
+        if not user:
+            self.redirect("/login")
+            return
+
         enti=demo_entities
         # pubblico la pagina add_edit.html, con le variabili modificate
-        self.render("visualizza_enti.html", enti=enti)
+        self.render("visualizza_enti.html", enti=enti,user=user.decode())
 
 
 def make_app():
@@ -220,10 +226,10 @@ def make_app():
         (r"/studente/scelta", HomeHandler),
         (r"/studente/scelta/enti", HomeHandler),
         (r"/studente/scelta/enti/([0-9]+)", HomeHandler),
-        (r"/studente/scelta/ente", HomeHandler),
+        (r"/studente/scelta/enti", HomeHandler),
         (r"/studente/questionario", HomeHandler),
         (r"/products", MainHandler),
-        (r"/ente", EnteHandler),
+        (r"/enti", EnteHandler),
         (r"/enti/add", AddEnteHandler),
         (r"/enti/edit/([0-9]+)", EditEnteHandler),
         (r"/enti/delete/([0-9]+)", DeleteEnteHandler)
