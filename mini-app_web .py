@@ -126,7 +126,33 @@ class AddEnteHandler(tornado.web.RequestHandler):
         capacity = self.get_body_argument("capacity")
         tutor = self.get_body_argument("tutor")
         tutor_phone = self.get_body_argument("tutor_phone")
-        schedule = self.get_body_argument("schedule")
+        def parse_day(text):
+            result = []
+
+            if not text.strip():
+                return result
+
+            intervals = text.split(",")
+
+            for interval in intervals:
+                start, end = interval.strip().split("-")
+                result.append({
+                    "start": start.strip(),
+                    "end": end.strip()
+                })
+
+            return result
+
+
+        schedule = {
+            "lun": parse_day(self.get_argument("lunedi")),
+            "mar": parse_day(self.get_argument("martedi")),
+            "mer": parse_day(self.get_argument("mercoledi")),
+            "gio": parse_day(self.get_argument("giovedi")),
+            "ven": parse_day(self.get_argument("venerdi")),
+            "sab": parse_day(self.get_argument("sabato")),
+            "dom": parse_day(self.get_argument("domenica")),
+        }
 
         #valori base alle variabili
         id=1
@@ -142,7 +168,8 @@ class AddEnteHandler(tornado.web.RequestHandler):
                 break
         print(schedule)
         print(type(schedule))
-        schedule= ast.literal_eval(schedule)
+        if type(schedule) != dict:
+            schedule= ast.literal_eval(schedule)
         new_ente = {"id":id,"name":name,"contact":contact,"phone":phone,"address":address,"sector":sector,"site":site,"capacity":capacity,"tutor":tutor,"tutor_phone":tutor_phone,"schedule":schedule}
         demo_entities.append(new_ente)
         self.redirect("/enti")
@@ -165,8 +192,36 @@ class EditEnteHandler(tornado.web.RequestHandler):
                 tutor_phone = ente["tutor_phone"]
                 schedule = ente["schedule"]
 
+                giorni = {
+                    "lun": "lunedi",
+                    "mar": "martedi",
+                    "mer": "mercoledi",
+                    "gio": "giovedi",
+                    "ven": "venerdi",
+                    "sab": "sabato",
+                    "dom": "domenica"
+                }
+
+                risultato = {}
+
+                for key, nome in giorni.items():
+                    if key not in schedule or len(schedule[key]) == 0:
+                        risultato[nome] = ""
+                    else:
+                        risultato[nome] = ", ".join(
+                            f"{orario['start']}-{orario['end']}"
+                            for orario in schedule[key]
+                        )
+                lunedi = risultato["lunedi"]
+                martedi = risultato["martedi"]
+                mercoledi = risultato["mercoledi"]
+                giovedi = risultato["giovedi"]
+                venerdi = risultato["venerdi"]
+                sabato = risultato["sabato"]
+                domenica = risultato["domenica"]
+
     # pubblico la pagina add_edit.html, con le variabili modificate
-        self.render("add_edit.html",id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule=schedule )
+        self.render("add_edit.html",lunedi=lunedi,martedi=martedi,mercoledi=mercoledi,giovedi=giovedi,venerdi=venerdi,sabato=sabato,domenica=domenica,id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule=schedule )
 
     def post(self,id):
 #prendo i valori delle variabili modificate e cercando dall'id del prodotto, sostituisco i valori di ogni variabile e ritorno alla pagina iniziale(/products)
@@ -179,8 +234,34 @@ class EditEnteHandler(tornado.web.RequestHandler):
         capacity = self.get_body_argument("capacity")
         tutor = self.get_body_argument("tutor")
         tutor_phone = self.get_body_argument("tutor_phone")
-        schedule = self.get_body_argument("schedule")
-        schedule= ast.literal_eval(schedule)
+        def parse_day(text):
+            result = []
+
+            if not text.strip():
+                return result
+
+            intervals = text.split(",")
+
+            for interval in intervals:
+                start, end = interval.strip().split("-")
+                result.append({
+                    "start": start.strip(),
+                    "end": end.strip()
+                })
+
+            return result
+
+        schedule = {
+            "lun": parse_day(self.get_argument("lunedi")),
+            "mar": parse_day(self.get_argument("martedi")),
+            "mer": parse_day(self.get_argument("mercoledi")),
+            "gio": parse_day(self.get_argument("giovedi")),
+            "ven": parse_day(self.get_argument("venerdi")),
+            "sab": parse_day(self.get_argument("sabato")),
+            "dom": parse_day(self.get_argument("domenica")),
+        }
+
+
         id=int(id)
         for ente in demo_entities:
             if ente["id"] == id:
