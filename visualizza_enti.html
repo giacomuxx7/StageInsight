@@ -72,12 +72,14 @@
     overflow: hidden;
     background: #fff;
   }
+
   .tbl-wrap table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
     font-family: sans-serif;
   }
+
   .tbl-wrap th {
     background: #f7f7f7;
     color: #888;
@@ -89,15 +91,20 @@
     text-align: left;
     border-bottom: 0.5px solid #e0e0e0;
   }
+
   .tbl-wrap td {
     padding: 10px 12px;
     border-bottom: 0.5px solid #e0e0e0;
     color: #1a1a1a;
     vertical-align: middle;
   }
+
   .tbl-wrap tr:last-child td { border-bottom: none; }
+
   .tbl-wrap tr:hover td { background: #fafafa; }
+
   .sched { font-size: 12px; color: #888; }
+
   .btn-modifica {
     font-size: 12px;
     color: #1565c0;
@@ -107,6 +114,7 @@
     border: 0.5px solid #90caf9;
     margin-right: 6px;
   }
+
   .btn-modifica:hover { background: #e3f2fd; }
   input[type="submit"] {
     font-size: 12px;
@@ -117,6 +125,17 @@
     border-radius: 8px;
     cursor: pointer;
   }
+
+  .btn-aggiungi {
+    font-size: 13px;
+    color: #2e7d32;
+    text-decoration: none;
+    padding: 3px 9px;
+    border-radius: 8px;
+    border: 0.5px solid #a5d6a7;
+    }
+  .btn-aggiungi:hover { background: #e8f5e9; }
+
   input[type="submit"]:hover { background: #ffebee; }
   .azioni-cell {
     display: flex;
@@ -132,43 +151,30 @@
 
 <!-- HEADER -->
 <div class="admin-header">
-  <h1 class="admin-title">Benvenuto, {{ user }}</h1>
+  <div>
+    <h1 class="admin-title">Benvenuto, {{ user }} 👋</h1>
+  </div>
 
   <div class="nav-btns">
-    <!-- bottone Enti: porta alla pagina corrente (lista enti) -->
     <a class="nav-btn" href="/enti">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Enti
     </a>
-
-    <!-- bottone Grafici -->
     <a class="nav-btn" href="/grafici">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Grafici
     </a>
-
-    <!-- bottone Questionari -->
     <a class="nav-btn" href="/questionari">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Questionari
     </a>
-
-    <!-- bottone Logout separato -->
-    <form action="/" method="get" style="margin:0;">
-      <button type="submit" class="logout-btn">Esci</button>
+    <form action="/login" method="get" style="margin:0;">
+      <button type="submit" class="logout-btn" >Esci</button>
     </form>
   </div>
 </div>
 
-<hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
-
-<!-- link testuale Aggiungi enti -->
-<div style="margin-bottom: 1rem; padding: 0 1rem;">
-  <a href="/enti/add" style="font-size:13px; color:#1565c0;">+ Aggiungi ente</a>
-</div>
-
-
-
+<! <hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
 
 <!TABELLA>
 
@@ -177,6 +183,10 @@
 
 {% if enti %}
   <div class="tbl-wrap">
+      <!-- bottone in alto a destra sopra la tabella -->
+    <div style="padding: 10px 12px; border-bottom: 0.5px solid #e0e0e0; display: flex; justify-content: flex-end;">
+      <a class="btn-aggiungi" href="/enti/add">+ Aggiungi ente</a>
+    </div>
     <table>
       <tr>
         <th>Name</th>
