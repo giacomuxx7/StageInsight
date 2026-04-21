@@ -85,11 +85,9 @@
 
   /* ── TABELLA (invariata) ── */
   .tbl-wrap {
-    border-radius: 12px;
-    border: 0.5px solid #e0e0e0;
-    overflow: hidden;
-    background: #fff;
-  }
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+   }
 
   .tbl-wrap table {
     width: 100%;
@@ -98,16 +96,8 @@
     font-family: sans-serif;
   }
 
-  .tbl-wrap th {
-    background: #f7f7f7;
-    color: #888;
-    font-weight: 500;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 10px 12px;
-    text-align: left;
-    border-bottom: 0.5px solid #e0e0e0;
+  .tbl-wrap table {
+  min-width: 900px;  /* questa riga è fondamentale */
   }
 
   .tbl-wrap td {

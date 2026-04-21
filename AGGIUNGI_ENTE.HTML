@@ -1,217 +1,128 @@
 <!DOCTYPE html>
-<html lang="it">
+<html>
 <head>
-<meta charset="UTF-8">
-<!-- viewport: senza questo su schermi piccoli/divisi
-     la griglia a 2 colonne esce dallo schermo -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PCTO — {% if name %}Modifica{% else %}Aggiungi{% end %} Ente</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: sans-serif;
-    background: #f5f5f5;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;       /* centra verticalmente */
-    justify-content: center;   /* centra orizzontalmente */
-    /* padding laterale: evita che la box tocchi i bordi */
-    padding: 1.5rem 1rem;
-  }
-
-  /* rettangolo centrale */
-  .box {
-    width: 100%;
-    max-width: 560px;
-    background: #fff;
-    border: 0.5px solid #e0e0e0;
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  /* intestazione del rettangolo */
-  .box-header {
-    padding: 20px 24px 16px;
-    border-bottom: 0.5px solid #e0e0e0;
-  }
-
-  .box-header h2 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-
-  .box-header p {
-    font-size: 13px;
-    color: #888;
-  }
-
-  /* corpo con i campi */
-  .box-body { padding: 20px 24px; }
-
-  /* griglia 2 colonne  su schermi larghi */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  /* sotto 480px (schermo diviso stretto o mobile):
-     tutto su una colonna sola, più leggibile */
-  @media (max-width: 480px) {
-    .grid { grid-template-columns: 1fr; }
-    /* su colonna singola lo span2 non serve più */
-    .span2 { grid-column: span 1; }
-    .box-header { padding: 16px; }
-    .box-body   { padding: 16px; }
-    .box-footer { padding: 12px 16px; }
-  }
-
-  /* campo che occupa entrambe le colonne (indirizzo) */
-  .span2 { grid-column: span 2; }
-
-  /* gruppo label + input */
-  .fg label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: #888;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
-  .fg input {
-    width: 100%;
-    padding: 8px 11px;
-    border: 0.5px solid #ddd;
-    border-radius: 8px;
-    font-size: 13px;
-    color: #1a1a1a;
-    outline: none;
-    font-family: sans-serif;
-  }
-  .fg input:focus { border-color: #999; }
-
-  /* piede con i bottoni */
-  .box-footer {
-    padding: 14px 24px;
-    border-top: 0.5px solid #e0e0e0;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    /* su schermi molto stretti i bottoni si impilano */
-    flex-wrap: wrap;
-  }
-
-  .btn-cancel {
-    font-size: 13px;
-    padding: 7px 16px;
-    border-radius: 8px;
-    border: 0.5px solid #ddd;
-    background: #fff;
-    color: #888;
-    cursor: pointer;
-    font-family: sans-serif;
-  }
-  .btn-cancel:hover { background: #f5f5f5; }
-
-  .btn-save {
-    font-size: 13px;
-    padding: 7px 16px;
-    border-radius: 8px;
-    border: 0.5px solid #1a1a1a;
-    background: #1a1a1a;
-    color: #fff;
-    cursor: pointer;
-    font-family: sans-serif;
-  }
-  .btn-save:hover { background: #333; }
-</style>
+    <title>Catalogo Prodotti</title>
 </head>
 <body>
-
-<div class="box">
-
-  <div class="box-header">
     {% if name %}
-      <h2>Modifica ente</h2>
-      <p>Modifica i dati di {{name}}</p>
+    <form method="post" action="/enti/edit/{{id}}">
+        name
+        <br>
+        <input type="text" name="name" value="{{name}}" placeholder="text" required>
+        <br>
+        contact
+        <br>
+        <input type="text" name="contact" value="{{contact}}" placeholder="text" required>
+        <br>
+        phone
+        <br>
+        <input type="text" name="phone" value="{{phone}}" placeholder="text" required>
+        <br>
+        address
+        <br>
+        <input type="text" name="address" value="{{address}}" placeholder="text" required>
+        <br>
+        sector
+        <br>
+        <input type="text" name="sector" value="{{sector}}" placeholder="text" required>
+        <br>
+        site
+        <br>
+        <input type="text" name="site" value="{{site}}" placeholder="text" required>
+        <br>
+        capacity
+        <br>
+        <input type="text" name="capacity" value="{{capacity}}" placeholder="text" required>
+        <br>
+        tutor
+        <br>
+        <input type="text" name="tutor" value="{{tutor}}" placeholder="text" required>
+        <br>
+        tutor_phone
+        <br>
+        <input type="text" name="tutor_phone" value="{{tutor_phone}}" placeholder="text" required>
+        <br>
+        schedule --> formato da seguire 09:00-13:00, 15:00-18:00
+        <br>
+        lunedi--><input type="text" name="lunedi" value="{{lunedi}}" placeholder="lunedi" >
+        <br>
+        martedi--><input type="text" name="martedi" value="{{martedi}}" placeholder="martedi" >
+        <br>
+        mercoledi--><input type="text" name="mercoledi" value="{{mercoledi}}" placeholder="mercoledi" >
+        <br>
+        giovedi--><input type="text" name="giovedi" value="{{giovedi}}" placeholder="giovedi" >
+        <br>
+        venerdi--><input type="text" name="venerdi" value="{{venerdi}}" placeholder="venerdi" >
+        <br>
+        sabato--><input type="text" name="sabato" value="{{sabato}}" placeholder="sabato" >
+        <br>
+        domenica--><input type="text" name="domenica" value="{{domenica}}" placeholder="domenica" >
+        <br>
+        <br>
+        <input type="submit" value="Modifica">
+    </form>
     {% else %}
-      <h2>Nuovo ente</h2>
-      <p>Compila i campi per aggiungere un ente al sistema</p>
+    <form method="post" action="/enti/add">
+        name
+        <br>
+        <input type="text" name="name" placeholder="Nome" required>
+        <br>
+        contact
+        <br>
+        <input type="text" name="contact" placeholder="Contact" required>
+        <br>
+        phone
+        <br>
+        <input type="text" name="phone" placeholder="Phone" required>
+        <br>
+        address
+        <br>
+        <input type="text" name="address" placeholder="Address" required>
+        <br>
+        sector
+        <br>
+        <input type="text" name="sector" placeholder="Sector" required>
+        <br>
+        site
+        <br>
+        <input type="text" name="site" placeholder="Site" required>
+        <br>
+        capacity
+        <br>
+        <input type="text" name="capacity" placeholder="Capacity" required>
+        <br>
+        tutor
+        <br>
+        <input type="text" name="tutor" placeholder="Tutor" required>
+        <br>
+        tutor_phone
+        <br>
+        <input type="text" name="tutor_phone" placeholder="Tutor phone" required>
+        <br>
+        schedule --> formato da seguire 09:00-13:00, 15:00-18:00
+        <br>
+        lunedi--><input type="text" name="lunedi">
+        <br>
+        martedi--><input type="text" name="martedi">
+        <br>
+        mercoledi--><input type="text" name="mercoledi">
+        <br>
+        giovedi--><input type="text" name="giovedi">
+        <br>
+        venerdi--><input type="text" name="venerdi">
+        <br>
+        sabato--><input type="text" name="sabato">
+        <br>
+        domenica--><input type="text" name="domenica">
+        <br>
+        <br>
+        <input type="submit" value="Aggiungi">
+    </form>
     {% end %}
-  </div>
 
-  {% if name %}
-  <form method="post" action="/enti/edit/{{id}}">
-  {% else %}
-  <form method="post" action="/enti/add">
-  {% end %}
-
-    <div class="box-body">
-      <div class="grid">
-
-        <div class="fg">
-          <label>Nome ente</label>
-          <input type="text" name="name" {% if name %}value="{{name}}"{% end %} placeholder="es. Caritas" required>
-        </div>
-
-        <div class="fg">
-          <label>Settore</label>
-          <input type="text" name="sector" {% if name %}value="{{sector}}"{% end %} placeholder="es. Sociale">
-        </div>
-
-        <div class="fg">
-          <label>Email contatto</label>
-          <input type="email" name="contact" {% if name %}value="{{contact}}"{% end %} placeholder="info@ente.it">
-        </div>
-
-        <div class="fg">
-          <label>Telefono</label>
-          <input type="text" name="phone" {% if name %}value="{{phone}}"{% end %} placeholder="02-1234567">
-        </div>
-
-        <div class="fg span2">
-          <label>Indirizzo</label>
-          <input type="text" name="address" {% if name %}value="{{address}}"{% end %} placeholder="Via Roma 1, Milano">
-        </div>
-
-        <div class="fg">
-          <label>Sito web</label>
-          <input type="text" name="site" {% if name %}value="{{site}}"{% end %} placeholder="www.ente.it">
-        </div>
-
-        <div class="fg">
-          <label>Capacità</label>
-          <input type="number" name="capacity" {% if name %}value="{{capacity}}"{% end %} placeholder="5" min="1" max="50">
-        </div>
-
-        <div class="fg">
-          <label>Tutor ente</label>
-          <input type="text" name="tutor" {% if name %}value="{{tutor}}"{% end %} placeholder="Mario Rossi">
-        </div>
-
-        <div class="fg">
-          <label>Telefono tutor</label>
-          <input type="text" name="tutor_phone" {% if name %}value="{{tutor_phone}}"{% end %} placeholder="333-1111111">
-        </div>
-
-      </div>
-    </div>
-
-    <div class="box-footer">
-      <a href="/enti"><button type="button" class="btn-cancel">Annulla</button></a>
-      {% if name %}
-        <input type="submit" value="💾 Salva modifiche" class="btn-save">
-      {% else %}
-        <input type="submit" value="➕ Aggiungi ente" class="btn-save">
-      {% end %}
-    </div>
-
-  </form>
-
-</div>
-
+<br>
+    <nax>
+        <a href="/enti">Torna alla lista</a>
+    </nax>
 </body>
 </html>
