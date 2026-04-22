@@ -29,22 +29,18 @@ demo_entities = [
 ]
 demo_students = [
     {
-        "email": "giacomo.bruni@fermi.mo.it",
-        "password": "psw",
-        "choices": ["Caritas", "Legambiente", "Croce Rossa"],
-        "assigned_entity":None
+        "username": "ari",
+        "password": "",
+        "choices": ["Cacca"],
+        "assigned_entity":1
     },
     {
-        "email": "arianna.tagliavini@fermi.mo.it",
-        "password": "psw",
+        "username": "w",
+        "password": "",
         "choices": ["Legambiente", "Croce Rossa", "Caritas"],
-        "assigned_entity":None
+        "assigned_entity":1
     }
 ]
-products = [
-            {"id": 1, "nome": "Telefono", "categoria": "Elettronica", "prezzo": 299.99, "disponibile": True},
-            {"id": 2, "nome": "Maglietta", "categoria": "Abbigliamento", "prezzo": 19.99, "disponibile": False},
-        ]
 class LoginHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("login.html", error=None)
@@ -53,62 +49,20 @@ class LoginHandler(tornado.web.RequestHandler):
         username = self.get_body_argument("username")
         password = self.get_body_argument("password")
 
-        # login semplice (hardcoded)
+
         if username == "admin" and password == "":
-            self.set_secure_cookie("user", "admin")
+            self.set_secure_cookie("user", username)
             self.redirect("/enti")
         elif username == "ari" and password == "":
-            self.set_secure_cookie("user", "studente")
-            self.redirect("/enti")
+            self.set_secure_cookie("user", username,)
+            self.redirect("/studente/scelta_enti")
         elif username == "ref" and password == "":
             self.set_secure_cookie("user", "referente")
             self.redirect("/enti")
         else:
             self.render("login.html", error="Sei scemo")
 
-class HomeHandler(tornado.web.RequestHandler):
-    def get(self):
-        user = self.get_secure_cookie("user")
 
-        if not user:
-            self.redirect("/login")
-            return
-
-        self.render("home.html", user=user.decode())
-
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-
-#prendo la categoria e la disponibilità del prodotto dalla query string, trasformo disponibile da on o off a True o False
-#nei controlli sotto trovo il prodotto in base alla categoria e la disponibilità
-#finiti i controlli riordino e tolgo i doppioni dalla lista di prodotti
-
-        categoria = self.get_query_argument("categoria", None)
-        disponibile = self.get_query_argument("disponibile", None)
-
-        if disponibile== "on":
-            disponibile = True
-        elif disponibile == "off":
-            disponibile = False
-
-        if categoria and disponibile:
-            filtered_tasks = [t for t in products if t["categoria"] == categoria and t["disponibile"] == disponibile]
-
-        elif categoria:
-            filtered_tasks = [t for t in products if t["categoria"] == categoria]
-
-        elif disponibile == True :
-            filtered_tasks = [t for t in products if t["disponibile"] == disponibile]
-
-        else:
-            filtered_tasks = products
-
-
-        categories = sorted(set(t["categoria"] for t in products)) if products else []  # set elimina i doppioni da qualsiasi tipo di variabile
-        print(categories)
-        print(categoria)
-        print(filtered_tasks)
-        self.render("index.html", products=filtered_tasks, categories=categories, selected=categoria,solo_disponibile=disponibile)
 
 class AddEnteHandler(tornado.web.RequestHandler):
     def get(self):
@@ -300,16 +254,66 @@ class EnteHandler(tornado.web.RequestHandler):
         self.render("visualizza_enti.html", enti=enti,user=user.decode())
 
 
+class SceltaHandler(tornado.web.RequestHandler):
+    def get(self):
+        user = self.get_secure_cookie("user")
+
+        if not user:
+            self.redirect("/login")
+            return
+        primo=""
+        secondo=""
+        terzo=""
+        enti = demo_entities
+        for persona in demo_students:
+            if persona["username"] == user.decode():
+                if len(persona["choices"]) == 1:
+                    primo=persona["choices"][0]
+                elif len(persona["choices"]) == 2:
+                    primo=persona["choices"][0]
+                    secondo=persona["choices"][1]
+                elif len(persona["choices"]) == 3:
+                    primo=persona["choices"][0]
+                    secondo=persona["choices"][1]
+                    terzo=persona["choices"][2]
+                self.render("scelta_enti.html", enti=enti,user=user.decode(),primo=primo,secondo=secondo,terzo=terzo)
+
+    def post(self):
+        enti = demo_entities
+        user = self.get_secure_cookie("user")
+
+        primo = self.get_body_argument("primo")
+        secondo = self.get_body_argument("secondo")
+        terzo = self.get_body_argument("terzo")
+
+        for persona in demo_students:
+            if persona["username"] == user.decode():
+                persona["choices"] = [primo, secondo, terzo]
+
+        self.redirect("/studente/scelta_enti")
+
+
+
+
+class EditSceltaHandler(tornado.web.RequestHandler):
+    def get(self):
+        enti=demo_entities
+        user = self.get_secure_cookie("user")
+        primo=self.get_argument("primo","")
+        secondo=self.get_argument("secondo","")
+        terzo=self.get_argument("terzo","")
+        for persona in demo_students:
+            if persona["username"] == user.decode():
+                persona["choices"] = [primo, secondo, terzo]
+        self.render("scelta_enti.html",user=user.decode(),primo=primo,terzo=terzo,secondo=secondo,enti=enti)
+
+
 def make_app():
     return tornado.web.Application([
         (r"/login", LoginHandler),
-        (r"/home", HomeHandler),
-        (r"/studente/scelta", HomeHandler),
-        (r"/studente/scelta/enti", HomeHandler),
-        (r"/studente/scelta/enti/([0-9]+)", HomeHandler),
-        (r"/studente/scelta/enti", HomeHandler),
-        (r"/studente/questionario", HomeHandler),
-        (r"/products", MainHandler),
+        (r"/studente/scelta_enti", SceltaHandler),
+        (r"/studente/visione_ente", LoginHandler),
+        (r"/studente/questionario", LoginHandler),
         (r"/enti", EnteHandler),
         (r"/enti/add", AddEnteHandler),
         (r"/enti/edit/([0-9]+)", EditEnteHandler),
