@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Visualizzazione enti</title>    <!quello che vedi nella linguetta della pagina
-        <!-- viewport: FONDAMENTALE — senza questo il browser su schermi piccoli/divisi
+    <title>Visualizzazione enti</title>    <!-- quello che vedi nella linguetta della pagina
+         viewport: FONDAMENTALE — senza questo il browser su schermi piccoli/divisi
          fa finta di avere 980px e rimpicciolisce tutto invece di adattarlo -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
@@ -237,9 +237,7 @@
                 {% end %}
               </td>
               <td class="azioni-cell">
-                <nax>
                     <a class="btn-modifica" href="/enti/edit/{{ ente['id'] }}">Modifica</a>
-                </nax>
                 <form action="/enti/delete/{{ ente['id'] }}" method="post" style="display:inline;">
                     <input type="submit" value="Elimina">
                 </form>

@@ -1,7 +1,6 @@
 import asyncio
 import tornado.web
 import tornado.escape
-import ast
 
 demo_entities = [
     {"id":0,"name": "Caritas", "contact": "info@caritas.it", "phone": "02-1234567",
@@ -31,14 +30,25 @@ demo_students = [
     {
         "username": "ari",
         "password": "",
+        "school":"Fermi",
         "choices": ["Cacca"],
+        "entities": None,
         "assigned_entity":1
     },
     {
         "username": "w",
         "password": "",
         "choices": ["Legambiente", "Croce Rossa", "Caritas"],
+        "entities": None,
         "assigned_entity":1
+    }
+]
+
+demo_referent = [
+    {
+        "username": "ref",
+        "password": "",
+        "school":"Fermi",
     }
 ]
 class LoginHandler(tornado.web.RequestHandler):
@@ -54,7 +64,7 @@ class LoginHandler(tornado.web.RequestHandler):
             self.set_secure_cookie("user", username)
             self.redirect("/enti")
         elif username == "ari" and password == "":
-            self.set_secure_cookie("user", username,)
+            self.set_secure_cookie("user", username)
             self.redirect("/studente/scelta_enti")
         elif username == "ref" and password == "":
             self.set_secure_cookie("user", "referente")
@@ -120,10 +130,6 @@ class AddEnteHandler(tornado.web.RequestHandler):
                 id = id+1
             else:
                 break
-        print(schedule)
-        print(type(schedule))
-        if type(schedule) != dict:
-            schedule= ast.literal_eval(schedule)
         new_ente = {"id":id,"name":name,"contact":contact,"phone":phone,"address":address,"sector":sector,"site":site,"capacity":capacity,"tutor":tutor,"tutor_phone":tutor_phone,"schedule":schedule}
         demo_entities.append(new_ente)
         self.redirect("/enti")
@@ -156,23 +162,23 @@ class EditEnteHandler(tornado.web.RequestHandler):
                     "dom": "domenica"
                 }
 
-                risultato = {}
+                giorni_formattati = {}
 
                 for key, nome in giorni.items():
                     if key not in schedule or len(schedule[key]) == 0:
-                        risultato[nome] = ""
+                        giorni_formattati[nome] = ""
                     else:
-                        risultato[nome] = ", ".join(
+                        giorni_formattati[nome] = ", ".join(
                             f"{orario['start']}-{orario['end']}"
                             for orario in schedule[key]
                         )
-                lunedi = risultato["lunedi"]
-                martedi = risultato["martedi"]
-                mercoledi = risultato["mercoledi"]
-                giovedi = risultato["giovedi"]
-                venerdi = risultato["venerdi"]
-                sabato = risultato["sabato"]
-                domenica = risultato["domenica"]
+                lunedi = giorni_formattati["lunedi"]
+                martedi = giorni_formattati["martedi"]
+                mercoledi = giorni_formattati["mercoledi"]
+                giovedi = giorni_formattati["giovedi"]
+                venerdi = giorni_formattati["venerdi"]
+                sabato = giorni_formattati["sabato"]
+                domenica = giorni_formattati["domenica"]
 
     # pubblico la pagina add_edit.html, con le variabili modificate
         self.render("add_edit.html",lunedi=lunedi,martedi=martedi,mercoledi=mercoledi,giovedi=giovedi,venerdi=venerdi,sabato=sabato,domenica=domenica,id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule=schedule )
@@ -306,7 +312,6 @@ class EditSceltaHandler(tornado.web.RequestHandler):
             if persona["username"] == user.decode():
                 persona["choices"] = [primo, secondo, terzo]
         self.render("scelta_enti.html",user=user.decode(),primo=primo,terzo=terzo,secondo=secondo,enti=enti)
-
 
 def make_app():
     return tornado.web.Application([
