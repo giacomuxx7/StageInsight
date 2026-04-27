@@ -7,7 +7,11 @@
 </head>
 <body>
 <style>
-    /* ── HEADER ── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { font-family: sans-serif; background: #f9f9f9; }
+
+  /* ── HEADER ── */
   .admin-header {
     display: flex;
     align-items: center;
@@ -18,82 +22,116 @@
     background: #fff;
     border-bottom: 0.5px solid #e0e0e0;
   }
-
   .admin-title { font-size: 24px; font-weight: 600; margin: 0; }
-
   .nav-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-
   .nav-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    padding: 7px 14px;
-    border-radius: 8px;
-    border: 0.5px solid #ccc;
-    color: #1a1a1a;
-    background: #fff;
-    cursor: pointer;
-    font-family: sans-serif;
-    white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; text-decoration: none;
+    padding: 7px 14px; border-radius: 8px; border: 0.5px solid #ccc;
+    color: #1a1a1a; background: #fff; cursor: pointer;
+    font-family: sans-serif; white-space: nowrap;
   }
   .nav-btn:hover { background: #f5f5f5; }
   .nav-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
-
   .logout-btn {
-    font-size: 13px;
-    background: none;
-    border: 0.5px solid #ccc;
-    color: #888;
-    padding: 5px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: sans-serif;
+    font-size: 13px; background: none; border: 0.5px solid #ccc;
+    color: #888; padding: 5px 12px; border-radius: 8px;
+    cursor: pointer; font-family: sans-serif;
   }
   .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
-  .chart-wrap { position:relative; height:240px; }
+
+  /* ── CORPO ── */
+  .page-body { padding: 1.25rem 1rem; }
+
+  /* griglia 2 colonne, su mobile 1 colonna */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 700px) {
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+
+  /* riquadro singolo grafico */
+  .chart-card {
+    background: #fff;
+    border: 0.5px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* intestazione con titolo */
+  .chart-card-header {
+    padding: 14px 18px 12px;
+    border-bottom: 0.5px solid #e0e0e0;
+  }
+  .chart-card-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    color: #1a1a1a;
+  }
+
+  /* area del grafico: altezza fissa necessaria per Chart.js */
+  .chart-card-body {
+    padding: 16px 18px;
+    position: relative;  /* richiesto da Chart.js */
+    height: 240px;
+  }
 </style>
 
 <!-- HEADER -->
-    <div class="admin-header">
-      <h1 class="admin-title">Benvenuto, {{ user }} 👋</h1>
-      <div class="nav-btns">
-        <a class="nav-btn" href="/enti">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Enti
-        </a>
-        <a class="nav-btn" href="/grafici">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Grafici
-        </a>
-        <a class="nav-btn" href="/questionari">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Questionario
-        </a>
-        <form action="/login" method="get" style="margin:0;">
-          <button type="submit" class="logout-btn">Esci</button>
-        </form>
-      </div>
-    </div>
+<div class="admin-header">
+  <div>
+    <h1 class="admin-title">Benvenuto, {{ user }} 👋</h1>
+  </div>
 
-  <!-- GRAFICI -->
-  <div id="sec-grafici" class="section">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px; ">
-      <div class="card">
-        <div class="card-title">Studenti per Ente</div>
-        <div class="chart-wrap"><canvas id="chart1"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Punteggi Medi Questionari</div>
-        <div class="chart-wrap"><canvas id="chart2"></canvas></div>
-      </div>
-    </div>
+  <div class="nav-btns">
+    <a class="nav-btn" href="/enti">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Enti
+    </a>
+    <a class="nav-btn" href="/grafici">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Grafici
+    </a>
+    <a class="nav-btn" href="/questionari">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Questionari
+    </a>
+    <form action="/login" method="get" style="margin:0;">
+      <button type="submit" class="logout-btn" >Esci</button>
+    </form>
   </div>
 </div>
 
+<!-- GRAFICI -->
+<div class="page-body">
+  <div class="charts-grid">
 
-</script>
+    <!-- Riquadro 1 -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h3>Studenti per Ente</h3>
+      </div>
+      <div class="chart-card-body">
+        <canvas id="chart1"></canvas>
+      </div>
+    </div>
+
+    <!-- Riquadro 2 -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h3>Punteggi Medi Questionari</h3>
+      </div>
+      <div class="chart-card-body">
+        <canvas id="chart2"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>

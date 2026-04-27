@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Il mio ente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+</head>
+<body>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { font-family: sans-serif; background: #f9f9f9; }
+
+  /* ── HEADER ── */
+  .admin-header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px; padding: 1.25rem 1rem;
+    background: #fff; border-bottom: 0.5px solid #e0e0e0;
+  }
+  .admin-title { font-size: 24px; font-weight: 600; margin: 0; }
+  .nav-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .nav-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; text-decoration: none;
+    padding: 7px 14px; border-radius: 8px; border: 0.5px solid #ccc;
+    color: #1a1a1a; background: #fff; cursor: pointer;
+    font-family: sans-serif; white-space: nowrap;
+  }
+  .nav-btn:hover { background: #f5f5f5; }
+  .logout-btn {
+    font-size: 13px; background: none; border: 0.5px solid #ccc;
+    color: #888; padding: 5px 12px; border-radius: 8px;
+    cursor: pointer; font-family: sans-serif;
+  }
+  .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
+
+  /* ── LAYOUT DUE COLONNE ── */
+  .page-body { padding: 1.25rem 1rem; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* sotto 760px: una colonna sola */
+  @media (max-width: 760px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  /* ── CARD INFO ENTE (colonna sinistra) ── */
+  .info-card {
+    background: #fff;
+    border: 0.5px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    /* sticky: rimane visibile mentre scrolli il calendario */
+    position: sticky;
+    top: 16px;
+  }
+
+  .info-card-header {
+    padding: 14px 16px 12px;
+    border-bottom: 0.5px solid #e0e0e0;
+  }
+  .info-card-header h3 {
+    font-size: 15px; font-weight: 600; margin: 0 0 2px; color: #1a1a1a;
+  }
+  .info-card-header span { font-size: 12px; color: #888; }
+
+  .info-card-body { padding: 12px 16px; }
+
+  .info-row { display: flex; flex-direction: column; gap: 1px; margin-bottom: 10px; }
+  .info-row:last-child { margin-bottom: 0; }
+
+  .info-label {
+    font-size: 11px; font-weight: 500; color: #888;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .info-value { font-size: 13px; color: #1a1a1a; }
+
+  /* ── CALENDARIO (colonna destra) ── */
+  .cal-wrap {
+    background: #fff;
+    border: 0.5px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .cal-title {
+    padding: 14px 16px 12px;
+    font-size: 14px; font-weight: 600; color: #1a1a1a;
+    border-bottom: 0.5px solid #e0e0e0;
+  }
+
+  /* intestazione giorni */
+  .cal-header {
+    display: grid;
+    grid-template-columns: 44px repeat(6, 1fr);
+    background: #f7f7f7;
+    border-bottom: 0.5px solid #e0e0e0;
+  }
+  .cal-header-cell {
+    padding: 8px 4px;
+    text-align: center;
+    font-size: 11px; font-weight: 500; color: #888;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border-right: 0.5px solid #e0e0e0;
+  }
+  .cal-header-cell:last-child { border-right: none; }
+
+  /* corpo del calendario */
+  .cal-body { position: relative; }
+
+  /* ogni riga oraria */
+  .cal-row {
+    display: grid;
+    grid-template-columns: 44px repeat(6, 1fr);
+    border-bottom: 0.5px solid #e0e0e0;
+  }
+  .cal-row:last-child { border-bottom: none; }
+
+  /* colonna ore */
+  .cal-time {
+    padding: 4px 6px;
+    font-size: 10px; color: #aaa;
+    text-align: right;
+    border-right: 0.5px solid #e0e0e0;
+    line-height: 1;
+  }
+
+  /* cella giorno */
+  .cal-cell {
+    height: 28px;          /* altezza di ogni ora = 28px */
+    border-right: 0.5px solid #e0e0e0;
+    position: relative;
+  }
+  .cal-cell:last-child { border-right: none; }
+
+  /* blocco evento colorato */
+  .evento {
+    position: absolute;
+    left: 2px; right: 2px;
+    background: #C0DD97;   /* verde chiaro */
+    border-radius: 4px;
+    font-size: 10px; font-weight: 500;
+    color: #27500A;        /* verde scuro per il testo */
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+    overflow: hidden;
+  }
+</style>
+
+<!-- HEADER -->
+<div class="admin-header">
+  <h1 class="admin-title">Benvenuto, {{ user }} 👋</h1>
+  <div class="nav-btns">
+    <a class="nav-btn" href="/studente/scelta_enti">Enti</a>
+    <a class="nav-btn" href="/studente/visione_ente">Schedule</a>
+    <a class="nav-btn" href="/questionario">Questionario</a>
+    <form action="/login" method="get" style="margin:0;">
+      <button type="submit" class="logout-btn">Esci</button>
+    </form>
+  </div>
+</div>
+
+<!-- CORPO -->
+<div class="page-body">
+  <div class="two-col">
+
+    <!-- COLONNA SINISTRA: info ente -->
+    <div class="info-card">
+      <div class="info-card-header">
+        <h3>{{ name }}</h3>
+        <span>{{ sector }}</span>
+      </div>
+      <div class="info-card-body">
+        <div class="info-row">
+          <span class="info-label">Contatto</span>
+          <span class="info-value">{{ contact }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Telefono</span>
+          <span class="info-value">{{ phone }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Indirizzo</span>
+          <span class="info-value">{{ address }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Sito</span>
+          <span class="info-value">
+            {% if site %}
+              <a href="https://{{ site }}" target="_blank"
+                 style="color:#1565c0; font-size:13px; text-decoration:none;">
+                {{ site }}
+              </a>
+            {% end %}
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Capacità</span>
+          <span class="info-value">{{ capacity }} studenti</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Referente scuola</span>
+          <span class="info-value">{{ tutor }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Tel. referente</span>
+          <span class="info-value">{{ tutor_phone }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLONNA DESTRA: calendario -->
+    <div class="cal-wrap">
+      <div class="cal-title">Orario settimanale</div>
+
+      <div class="cal-header">
+        <div class="cal-header-cell"></div>
+        <div class="cal-header-cell">Lun</div>
+        <div class="cal-header-cell">Mar</div>
+        <div class="cal-header-cell">Mer</div>
+        <div class="cal-header-cell">Gio</div>
+        <div class="cal-header-cell">Ven</div>
+        <div class="cal-header-cell">Sab</div>
+      </div>
+
+      <div class="cal-body" id="calBody"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // orari mostrati (da 08:00 a 17:00)
+  const HOURS = ['08:00','09:00','10:00','11:00','12:00',
+                 '13:00','14:00','15:00','16:00','17:00'];
+  const ROW_H = 28; // deve corrispondere all'altezza .cal-cell in CSS
+
+  // crea le righe orarie
+  const body = document.getElementById('calBody');
+  HOURS.forEach(h => {
+    const row = document.createElement('div');
+    row.className = 'cal-row';
+    row.innerHTML = `<div class="cal-time">${h}</div>`
+      + Array(6).fill('<div class="cal-cell"></div>').join('');
+    body.appendChild(row);
+  });
+
+  // aggiunge un blocco evento sul calendario
+  // dayIndex: 0=Lun, 1=Mar, 2=Mer, 3=Gio, 4=Ven, 5=Sab
+  // startH/startM: ora e minuti di inizio
+  // endH/endM:     ora e minuti di fine
+  // label: testo da mostrare nel blocco
+  function addEvent(dayIndex, startH, startM, endH, endM, label) {
+    const top    = ((startH - 8) + startM / 60) * ROW_H;
+    const height = ((endH - startH) + (endM - startM) / 60) * ROW_H - 2;
+    const colW   = (body.offsetWidth - 44) / 6;
+    const left   = 44 + dayIndex * colW + 2;
+
+    const ev = document.createElement('div');
+    ev.className = 'evento';
+    ev.style.top    = top + 'px';
+    ev.style.left   = left + 'px';
+    ev.style.width  = (colW - 6) + 'px';
+    ev.style.height = height + 'px';
+    ev.textContent  = label;
+    body.appendChild(ev);
+  }
+
+  // ── popola con gli orari dal server ──────────────────────
+  // Il server passa la variabile "schedule" come oggetto JSON.
+  // Formato atteso dal server (già come dict Python passato a JS):
+  // schedule = { "lun": "09:00-13:00", "mer": "09:00-13:00, 15:00-18:00", ... }
+  const schedule = {{ schedule_json }};
+
+  const dayMap = { lun:0, mar:1, mer:2, gio:3, ven:4, sab:5 };
+
+  // attende che il DOM abbia le dimensioni giuste prima di posizionare
+  setTimeout(() => {
+    for (const [day, value] of Object.entries(schedule)) {
+      const idx = dayMap[day.toLowerCase()];
+      if (idx === undefined || !value) continue;
+
+      // ogni giorno può avere più fasce separate da virgola
+      value.split(',').forEach(fascia => {
+        fascia = fascia.trim();
+        if (!fascia) return;
+        const [start, end] = fascia.split('-');
+        if (!start || !end) return;
+        const [sh, sm] = start.trim().split(':').map(Number);
+        const [eh, em] = end.trim().split(':').map(Number);
+        addEvent(idx, sh, sm, eh, em, fascia);
+      });
+    }
+  }, 50);
+</script>
+</body>
+</html>
