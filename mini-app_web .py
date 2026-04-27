@@ -268,7 +268,14 @@ class GraficiHandler(tornado.web.RequestHandler):
             return
         self.render("grafici.html", user=user.decode())
 
+class QuestionariAdminHandler(tornado.web.RequestHandler):
+    def get(self):
+        user = self.get_secure_cookie("user")
 
+        if not user:
+            self.redirect("/login")
+            return
+        self.render("questionari_admin.html", user=user.decode())
 
 
 class SceltaHandler(tornado.web.RequestHandler):
@@ -334,7 +341,8 @@ def make_app():
         (r"/enti/add", AddEnteHandler),
         (r"/enti/edit/([0-9]+)", EditEnteHandler),
         (r"/enti/delete/([0-9]+)", DeleteEnteHandler),
-        (r"/grafici", GraficiHandler)
+        (r"/grafici", GraficiHandler),
+        (r"/questionari", QuestionariAdminHandler)
     ], cookie_secret="SUPER_SECRET_KEY")
 
 async def main(shutdown_event):
