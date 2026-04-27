@@ -78,7 +78,7 @@ class LoginHandler(tornado.web.RequestHandler):
 class AddEnteHandler(tornado.web.RequestHandler):
     def get(self):
 #pubblico la pagina add_edit.html
-        self.render("add_edit.html",name=None)
+        self.render("ADMIN/add_edit.html",name=None)
 
     def post(self):
 #prendo il valore delle variabili del nuovo prodotto, creo il nuovo prodotto, e ritorno alla pagina iniziale(/products)
@@ -182,7 +182,7 @@ class EditEnteHandler(tornado.web.RequestHandler):
                 domenica = giorni_formattati["domenica"]
 
     # pubblico la pagina add_edit.html, con le variabili modificate
-        self.render("add_edit.html",lunedi=lunedi,martedi=martedi,mercoledi=mercoledi,giovedi=giovedi,venerdi=venerdi,sabato=sabato,domenica=domenica,id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule=schedule )
+        self.render("ADMIN/add_edit.html",lunedi=lunedi,martedi=martedi,mercoledi=mercoledi,giovedi=giovedi,venerdi=venerdi,sabato=sabato,domenica=domenica,id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule=schedule )
 
     def post(self,id):
 #prendo i valori delle variabili modificate e cercando dall'id del prodotto, sostituisco i valori di ogni variabile e ritorno alla pagina iniziale(/products)
@@ -258,7 +258,7 @@ class EnteHandler(tornado.web.RequestHandler):
 
         enti=demo_entities
         # pubblico la pagina add_edit.html, con le variabili modificate
-        self.render("visualizza_enti.html", enti=enti,user=user.decode())
+        self.render("ADMIN/visualizza_enti.html", enti=enti,user=user.decode())
 
 class GraficiHandler(tornado.web.RequestHandler):
     def get(self):
@@ -267,7 +267,7 @@ class GraficiHandler(tornado.web.RequestHandler):
         if not user:
             self.redirect("/login")
             return
-        self.render("grafici.html", user=user.decode())
+        self.render("ADMIN/grafici.html", user=user.decode())
 
 class QuestionariAdminHandler(tornado.web.RequestHandler):
     def get(self):
@@ -276,7 +276,7 @@ class QuestionariAdminHandler(tornado.web.RequestHandler):
         if not user:
             self.redirect("/login")
             return
-        self.render("questionari_admin.html", user=user.decode())
+        self.render("ADMIN/questionari_admin.html", user=user.decode())
 
 class ScheduleHandler(tornado.web.RequestHandler):
     def get(self):
@@ -299,7 +299,7 @@ class ScheduleHandler(tornado.web.RequestHandler):
             tutor = ente["tutor"]
             tutor_phone = ente["tutor_phone"]
             schedule = ente["schedule"]
-        self.render("schedule.html", user=user.decode(), enti=enti, id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule_json=json.dumps(schedule) ) # converti in stringa JSON)
+        self.render("STUDENTE/schedule.html", user=user.decode(), enti=enti, id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule_json=json.dumps(schedule) ) # converti in stringa JSON)
 class SceltaHandler(tornado.web.RequestHandler):
     def get(self):
         user = self.get_secure_cookie("user")
@@ -322,7 +322,7 @@ class SceltaHandler(tornado.web.RequestHandler):
                     primo=persona["choices"][0]
                     secondo=persona["choices"][1]
                     terzo=persona["choices"][2]
-                self.render("scelta_enti.html", enti=enti,user=user.decode(),primo=primo,secondo=secondo,terzo=terzo)
+                self.render("STUDENTE/scelta_enti.html", enti=enti,user=user.decode(),primo=primo,secondo=secondo,terzo=terzo)
 
     def post(self):
         enti = demo_entities
@@ -359,7 +359,8 @@ class QuestionarioStudenteHandler(tornado.web.RequestHandler):
         if not user:
             self.redirect("/login")
             return
-        self.render("questionario_studenti.html", user=user.decode())
+        self.render("STUDENTE/questionario_studenti.html", user=user.decode())
+
 def make_app():
     return tornado.web.Application([
         (r"/login", LoginHandler),
