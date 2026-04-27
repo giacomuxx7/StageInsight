@@ -1,6 +1,7 @@
 import asyncio
 import tornado.web
 import tornado.escape
+import json
 
 demo_entities = [
     {"id":0,"name": "Caritas", "contact": "info@caritas.it", "phone": "02-1234567",
@@ -277,7 +278,28 @@ class QuestionariAdminHandler(tornado.web.RequestHandler):
             return
         self.render("questionari_admin.html", user=user.decode())
 
+class ScheduleHandler(tornado.web.RequestHandler):
+    def get(self):
+        user = self.get_secure_cookie("user")
+        if not user:
+            self.redirect("/login")
+            return
 
+        enti = demo_entities
+
+        # contorllo se id del prodotto che voglio modificare c'è nella lista e prendo le variabili del prodotto da modificare
+        for ente in demo_entities:
+            name = ente["name"]
+            contact = ente["contact"]
+            phone = ente["phone"]
+            address = ente["address"]
+            sector = ente["sector"]
+            site = ente["site"]
+            capacity = ente["capacity"]
+            tutor = ente["tutor"]
+            tutor_phone = ente["tutor_phone"]
+            schedule = ente["schedule"]
+        self.render("schedule.html", user=user.decode(), enti=enti, id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule_json=json.dumps(schedule) ) # converti in stringa JSON)
 class SceltaHandler(tornado.web.RequestHandler):
     def get(self):
         user = self.get_secure_cookie("user")
@@ -331,12 +353,19 @@ class EditSceltaHandler(tornado.web.RequestHandler):
                 persona["choices"] = [primo, secondo, terzo]
         self.render("scelta_enti.html",user=user.decode(),primo=primo,terzo=terzo,secondo=secondo,enti=enti)
 
+class QuestionarioStudenteHandler(tornado.web.RequestHandler):
+    def get(self):
+        user = self.get_secure_cookie("user")
+        if not user:
+            self.redirect("/login")
+            return
+        self.render("questionario_studenti.html", user=user.decode())
 def make_app():
     return tornado.web.Application([
         (r"/login", LoginHandler),
         (r"/studente/scelta_enti", SceltaHandler),
-        (r"/studente/visione_ente", LoginHandler),
-        (r"/studente/questionario", LoginHandler),
+        (r"/studente/visione_ente", ScheduleHandler),
+        (r"/studente/questionario", QuestionarioStudenteHandler),
         (r"/enti", EnteHandler),
         (r"/enti/add", AddEnteHandler),
         (r"/enti/edit/([0-9]+)", EditEnteHandler),
