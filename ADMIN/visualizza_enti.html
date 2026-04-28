@@ -83,34 +83,6 @@
     padding: 1.25rem 1rem;
   }
 
-  /* ── TABELLA (invariata) ── */
-  .tbl-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-   }
-
-  .tbl-wrap table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-    font-family: sans-serif;
-  }
-
-  .tbl-wrap table {
-  min-width: 900px;  /* questa riga è fondamentale */
-  }
-
-  .tbl-wrap td {
-    padding: 10px 12px;
-    border-bottom: 0.5px solid #e0e0e0;
-    color: #1a1a1a;
-    vertical-align: middle;
-  }
-
-  .tbl-wrap tr:last-child td { border-bottom: none; }
-
-  .tbl-wrap tr:hover td { background: #fafafa; }
-
   .sched { font-size: 12px; color: #888; }
 
   .btn-modifica {
@@ -155,6 +127,48 @@
   @media (max-width: 600px) {
     .azioni-cell { flex-direction: column; align-items: flex-start; }
   }
+      /* ── TABELLA (invariata) ── */
+
+   .tbl-col {
+    /* overflow-x: auto: se la tabella è larga,
+       appare la scrollbar SOLO qui, non sull'intera pagina */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+    border: 0.5px solid #e0e0e0;
+    background: #fff;
+  }
+
+  .tbl-col table {
+    /* min-width: garantisce che le colonne non si schiaccino */
+    min-width: 700px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .tbl-col th {
+    background: #f7f7f7;
+    color: #888;
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 0.5px solid #e0e0e0;
+    white-space: nowrap;
+  }
+
+  .tbl-col td {
+    padding: 10px 12px;
+    border-bottom: 0.5px solid #e0e0e0;
+    color: #1a1a1a;
+    vertical-align: middle;
+  }
+
+  .tbl-col tr:last-child td { border-bottom: none; }
+  .tbl-col tr:hover td { background: #fafafa; }
 </style>
 
 <!-- HEADER -->
@@ -192,7 +206,7 @@
     <hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
 
     {% if enti %}
-      <div class="tbl-wrap">
+      <div class="tbl-col">
           <!-- bottone in alto a destra sopra la tabella -->
         <div style="padding: 10px 12px; border-bottom: 0.5px solid #e0e0e0; display: flex; justify-content: flex-end;">
           <a class="btn-aggiungi" href="/enti/add">+ Aggiungi ente</a>
