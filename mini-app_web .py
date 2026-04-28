@@ -5,7 +5,7 @@ import json
 
 demo_entities = [
     {"id":0,"name": "Caritas", "contact": "info@caritas.it", "phone": "02-1234567",
-     "address": "Via Roma 1, Milano", "sector": "Sociale", "site": "caritas.it",
+     "address": "Via Roma 1, Milano", "sector": "Sociale", "site": "caritas.it","posti_rimasti":5,
      "capacity": 5, "tutor": "Mario Rossi", "tutor_phone": "333-1111111",
      "schedule": {
         "lun": [{"start": "08:00", "end": "12:00"}],
@@ -20,11 +20,11 @@ demo_entities = [
     }},
     {"id":1,"name": "Legambiente", "contact": "info@legambiente.it", "phone": "02-9876543",
      "address": "Via Verde 5, Milano", "sector": "Ambiente", "site": "legambiente.it",
-     "capacity": 4, "tutor": "Laura Bianchi", "tutor_phone": "333-2222222",
+     "capacity": 4,"posti_rimasti":4, "tutor": "Laura Bianchi", "tutor_phone": "333-2222222",
      "schedule": {"lun": [{"start": "09:00", "end": "13:00"}], "mar": [{"start": "09:00", "end": "13:00"}], "mer": [], "gio": [{"start": "09:00", "end": "13:00"}], "ven": [], "sab": []}},
     {"id":2,"name": "Croce Rossa", "contact": "info@cri.it", "phone": "02-5551234",
      "address": "Via Salute 10, Milano", "sector": "Sanitario", "site": "cri.it",
-     "capacity": 6, "tutor": "Giulia Verdi", "tutor_phone": "333-3333333",
+     "capacity": 6,"posti_rimasti":6, "tutor": "Giulia Verdi", "tutor_phone": "333-3333333",
      "schedule": {"lun": [], "mar": [{"start": "08:00", "end": "14:00"}], "mer": [{"start": "08:00", "end": "14:00"}], "gio": [], "ven": [{"start": "08:00", "end": "14:00"}], "sab": []}},
 ]
 demo_students = [
@@ -34,14 +34,15 @@ demo_students = [
         "school":"Fermi",
         "choices": ["Cacca"],
         "entities": None,
-        "assigned_entity":1
+        "assigned_entity":None
     },
     {
         "username": "w",
         "password": "",
+        "school": "Corni",
         "choices": ["Legambiente", "Croce Rossa", "Caritas"],
         "entities": None,
-        "assigned_entity":1
+        "assigned_entity":None
     }
 ]
 
@@ -68,8 +69,8 @@ class LoginHandler(tornado.web.RequestHandler):
             self.set_secure_cookie("user", username)
             self.redirect("/studente/scelta_enti")
         elif username == "ref" and password == "":
-            self.set_secure_cookie("user", "referente")
-            self.redirect("/enti")
+            self.set_secure_cookie("user", username)
+            self.redirect("/referente")
         else:
             self.render("login.html", error="Sei scemo")
 
@@ -280,26 +281,33 @@ class QuestionariAdminHandler(tornado.web.RequestHandler):
 
 class ScheduleHandler(tornado.web.RequestHandler):
     def get(self):
+        id_to_name = {e["id"]: e["name"] for e in demo_entities} #crea un diz con solo id:nome
         user = self.get_secure_cookie("user")
         if not user:
             self.redirect("/login")
             return
 
-        enti = demo_entities
-
+        for persona in demo_students:
+            if persona["username"] == user.decode():
+                for ente in demo_entities:
+                    if ente["id"] == persona["assigned_entity"]:
+                        name = ente["name"]
+                        contact = ente["contact"]
+                        phone = ente["phone"]
+                        address = ente["address"]
+                        sector = ente["sector"]
+                        site = ente["site"]
+                        capacity = ente["capacity"]
+                        tutor = ente["tutor"]
+                        tutor_phone = ente["tutor_phone"]
+                        schedule = ente["schedule"]
         # contorllo se id del prodotto che voglio modificare c'è nella lista e prendo le variabili del prodotto da modificare
-        for ente in demo_entities:
-            name = ente["name"]
-            contact = ente["contact"]
-            phone = ente["phone"]
-            address = ente["address"]
-            sector = ente["sector"]
-            site = ente["site"]
-            capacity = ente["capacity"]
-            tutor = ente["tutor"]
-            tutor_phone = ente["tutor_phone"]
-            schedule = ente["schedule"]
-        self.render("STUDENTE/schedule.html", user=user.decode(), enti=enti, id=id, name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule_json=json.dumps(schedule) ) # converti in stringa JSON)
+        for persona in demo_students:
+            if persona["username"] == user.decode():
+                if persona["assigned_entity"] != None:
+                    self.render("STUDENTE/schedule.html", user=user.decode(), name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule_json=json.dumps(schedule) ) # converti in stringa JSON)
+                else:
+                    self.redirect("/studente/scelta_enti")
 class SceltaHandler(tornado.web.RequestHandler):
     def get(self):
         user = self.get_secure_cookie("user")
@@ -351,7 +359,7 @@ class EditSceltaHandler(tornado.web.RequestHandler):
         for persona in demo_students:
             if persona["username"] == user.decode():
                 persona["choices"] = [primo, secondo, terzo]
-        self.render("scelta_enti.html",user=user.decode(),primo=primo,terzo=terzo,secondo=secondo,enti=enti)
+        self.render("STUDENTE/scelta_enti.html",user=user.decode(),primo=primo,terzo=terzo,secondo=secondo,enti=enti)
 
 class QuestionarioStudenteHandler(tornado.web.RequestHandler):
     def get(self):
@@ -361,12 +369,55 @@ class QuestionarioStudenteHandler(tornado.web.RequestHandler):
             return
         self.render("STUDENTE/questionario_studenti.html", user=user.decode())
 
+
+class ReferenteHandler(tornado.web.RequestHandler):
+    def get(self):
+        user = self.get_secure_cookie("user")
+        enti=demo_entities
+        for referenti in demo_referent:
+            if referenti["username"] == user.decode():
+                referente=referenti
+        if not user:
+            self.redirect("/login")
+            return
+        enti=demo_entities
+        studenti_fermi = []
+        for persona in demo_students:
+            if persona["school"] == referente["school"]:
+                studenti_fermi.append(persona)
+        id_to_name = {e["id"]: e["name"] for e in demo_entities} #crea un diz con solo id:nome
+        self.render("REFERENTE/referente.html",id_to_name=id_to_name, user=user.decode(),studenti_fermi=studenti_fermi,enti=enti)
+
+
+    def post(self, username):
+        ente_id = self.get_body_argument("ente_id")
+
+        # se non ha selezionato niente, togli l'assegnazione
+        if ente_id == "":
+            ente_id_val = None
+        else:
+            ente_id_val = int(ente_id)
+
+        # cerca lo studente per username e aggiorna assigned_entity
+        for studente in demo_students:
+            if studente["username"] == username:
+                studente["assigned_entity"] = ente_id_val
+                break
+        print(demo_students)
+        self.redirect("/referente")
+
+
+
+
+
 def make_app():
     return tornado.web.Application([
         (r"/login", LoginHandler),
         (r"/studente/scelta_enti", SceltaHandler),
         (r"/studente/visione_ente", ScheduleHandler),
         (r"/studente/questionario", QuestionarioStudenteHandler),
+        (r"/referente", ReferenteHandler),
+        (r"/referente/assegna/([^/]+)", ReferenteHandler),
         (r"/enti", EnteHandler),
         (r"/enti/add", AddEnteHandler),
         (r"/enti/edit/([0-9]+)", EditEnteHandler),

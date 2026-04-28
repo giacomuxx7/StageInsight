@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visualizzazione enti</title>    <!-- quello che vedi nella linguetta della pagina
+         viewport: FONDAMENTALE — senza questo il browser su schermi piccoli/divisi
+         fa finta di avere 980px e rimpicciolisce tutto invece di adattarlo -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+</head>
+<body>
+<style>
+  /* Reset base */
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #f9f9f9;
+  }
+
+  /* ── HEADER ── */
+  .admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;        /* su mobile va a capo */
+    gap: 12px;
+    padding: 1.5rem 1rem 1.25rem;
+  }
+
+  .admin-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+    font-family: sans-serif;
+  }
+
+  .nav-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 0.5px solid #ccc;
+    color: #1a1a1a;
+    background: #fff;
+    cursor: pointer;
+    font-family: sans-serif;
+  }
+
+  .nav-btn:hover { background: #f5f5f5; }
+
+  .nav-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  .logout-btn {
+    font-size: 13px;
+    background: none;
+    border: 0.5px solid #ccc;
+    color: #888;
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: sans-serif;
+  }
+
+  .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
+
+    /* ── CONTENUTO PAGINA ── */
+  .page-body {
+    padding: 1.25rem 1rem;
+  }
+
+  /* ── TABELLA (invariata) ── */
+  .tbl-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+   }
+
+  .tbl-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: sans-serif;
+  }
+
+  .tbl-wrap table {
+  min-width: 900px;  /* questa riga è fondamentale */
+  }
+
+  .tbl-wrap td {
+    padding: 10px 12px;
+    border-bottom: 0.5px solid #e0e0e0;
+    color: #1a1a1a;
+    vertical-align: middle;
+  }
+
+  .tbl-wrap tr:last-child td { border-bottom: none; }
+
+  .tbl-wrap tr:hover td { background: #fafafa; }
+
+  .sched { font-size: 12px; color: #888; }
+
+  .btn-modifica {
+    font-size: 12px;
+    color: #1565c0;
+    text-decoration: none;
+    padding: 3px 9px;
+    border-radius: 8px;
+    border: 0.5px solid #90caf9;
+    margin-right: 6px;
+  }
+
+  .btn-modifica:hover { background: #e3f2fd; }
+  input[type="submit"] {
+    font-size: 12px;
+    background: none;
+    border: 0.5px solid #ef9a9a;
+    color: #c62828;
+    padding: 3px 9px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .btn-aggiungi {
+    font-size: 13px;
+    color: #2e7d32;
+    text-decoration: none;
+    padding: 3px 9px;
+    border-radius: 8px;
+    border: 0.5px solid #a5d6a7;
+    }
+  .btn-aggiungi:hover { background: #e8f5e9; }
+
+  input[type="submit"]:hover { background: #ffebee; }
+  .azioni-cell {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 600px) {
+    .azioni-cell { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+<!-- HEADER -->
+<div class="admin-header">
+  <div>
+    <h1 class="admin-title">Benvenuto, {{ user }} 👋</h1>
+  </div>
+
+  <div class="nav-btns">
+    <a class="nav-btn" href="/enti">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Enti
+    </a>
+    <a class="nav-btn" href="/grafici">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Grafici
+    </a>
+    <a class="nav-btn" href="/questionari">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Questionari
+    </a>
+    <form action="/login" method="get" style="margin:0;">
+      <button type="submit" class="logout-btn" >Esci</button>
+    </form>
+  </div>
+</div>
+
+<div class="page-body">
+
+    <! <hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
+
+    <!TABELLA>
+
+    <br>
+    <hr style="border: none; border-top: 0.5px solid #e0e0e0; margin-bottom: 1.25rem;">
+
+    {% if studenti_fermi %}
+      <div class="tbl-wrap">
+          <!-- bottone in alto a destra sopra la tabella -->
+        <table>
+          <tr>
+            <th>Studente</th>
+            <th>Scuola</th>
+            <th>Preferenze</th>
+            <th>Ente assegnato</th>
+            <th>Assegna</th>
+          </tr>
+          {% for studente in studenti_fermi %} <!scorro dizionario di un prodotto e metto i suoi valori nella colonna giusta>
+            <tr>
+              <td>{{ studente['username'] }}</td>
+              <td>{{ studente['school'] }}</td>
+              <td>{% for scelta in studente['choices'] %}
+                    {{ scelta }} <br>
+                  {% end %}
+              </td>
+              <td>
+                  {% if studente['assigned_entity'] is not None %}
+                    {{ id_to_name[studente['assigned_entity']] }}
+                  {% else %}
+                    —
+                  {% end %}
+                </td>
+              <td>
+                  <form method="post" action="/referente/assegna/{{ studente['username'] }}">
+                      <div class="pref-row">
+                        <select name="ente_id">
+                          <option value="">— Seleziona —</option>
+                          {% for ente in enti %}
+                            <option value="{{ ente['id'] }}">
+                              {{ ente['name'] }}
+                            </option>
+                            </option>
+                          {% end %}
+                        </select>
+                      </div>
+                      <br>
+                      <input type="submit" value="Salva">
+                  </form>
+              </td>
+            </tr>
+          {% end %}
+        </table>
+      </div>
+    {% else %}
+      <p style="color:#888; font-size:14px;">Nessuno studente presente</p> <!se non ci sono enti nella lista>
+    {% end %}
+</div>
+</body>
+</html>
