@@ -67,6 +67,7 @@
         padding: 14px 18px 12px;
         border-bottom: 0.5px solid #e0e0e0;
       }
+
       .chart-card-header h3 {
         font-size: 14px;
         font-weight: 600;
@@ -77,8 +78,8 @@
       /* area del grafico: altezza fissa necessaria per Chart.js */
       .chart-card-body {
         padding: 16px 18px;
-        position: relative;  /* richiesto da Chart.js */
-        height: 280px; /* Altezza leggermente aumentata per accomodare meglio i grafici */
+        position: relative;
+        height: 280px;
         display: flex;
         justify-content: center;
       }
@@ -105,7 +106,7 @@
       Questionari
     </a>
     <form action="/login" method="get" style="margin:0;">
-      <button type="submit" class="logout-btn" >Esci</button>
+      <button type="submit" class="logout-btn">Esci</button>
     </form>
   </div>
 </div>
@@ -148,54 +149,127 @@
     const competenze = {% raw competenze %};
     const contesti = {% raw contesti %};
 
-    // Opzioni comuni per rendere i grafici responsivi all'interno dei div
+    // Funzione per pulire undefined dalle labels
+    function cleanLabelsAndData(obj) {
+        const cleanedLabels = [];
+        const cleanedData = [];
+
+        for (const [key, value] of Object.entries(obj)) {
+            // Salta chiavi undefined, null, vuote o che sono "undefined" come stringa
+            if (key && key !== 'undefined' && key !== 'null' && key !== '') {
+                cleanedLabels.push(key);
+                cleanedData.push(value || 0);
+            }
+        }
+
+        // Se dopo la pulizia non ci sono dati, aggiungi un placeholder
+        if (cleanedLabels.length === 0) {
+            cleanedLabels.push('Nessun dato');
+            cleanedData.push(0);
+        }
+
+        return { labels: cleanedLabels, data: cleanedData };
+    }
+
+    // Opzioni comuni per rendere i grafici responsivi
     const commonOptions = {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.label || '';
+                        let value = context.raw || 0;
+                        return `${label}: ${value}`;
+                    }
+                }
+            }
+        }
     };
 
-    // 🎯 TORTA
+    // PULIZIA DATI PER LA TORTA
+    const pieClean = cleanLabelsAndData(scala);
+
+    // TORTA
     new Chart(document.getElementById('pieChart'), {
         type: 'pie',
         data: {
-            labels: Object.keys(scala),
+            labels: pieClean.labels,
             datasets: [{
-                data: Object.values(scala)
+                data: pieClean.data,
+                backgroundColor: [
+                    '#4caf50', '#2196f3', '#ff9800', '#f44336', '#9c27b0',
+                    '#00bcd4', '#ffeb3b', '#795548', '#607d8b', '#e91e63'
+                ]
             }]
         },
         options: commonOptions
     });
 
-    // 🎯 ISTOGRAMMA COMPETENZE
+    // PULIZIA DATI PER LE BARRE
+    const competenzeClean = cleanLabelsAndData(competenze);
+    const contestiClean = cleanLabelsAndData(contesti);
+
+    // ISTOGRAMMA COMPETENZE
     new Chart(document.getElementById('barCompetenze'), {
         type: 'bar',
         data: {
-            labels: Object.keys(competenze),
+            labels: competenzeClean.labels,
             datasets: [{
-                data: Object.values(competenze)
+                label: 'Punteggio',
+                data: competenzeClean.data,
+                backgroundColor: '#42a5f5',
+                borderRadius: 4
             }]
         },
         options: {
             ...commonOptions,
             scales: {
-                y: { beginAtZero: true }
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true
+                    }
+                },
+                x: {
+                    title: {
+                        display: true
+                    }
+                }
             }
         }
     });
 
-    // 🎯 ISTOGRAMMA CONTESTI
+    // ISTOGRAMMA CONTESTI
     new Chart(document.getElementById('barContesti'), {
         type: 'bar',
         data: {
-            labels: Object.keys(contesti),
+            labels: contestiClean.labels,
             datasets: [{
-                data: Object.values(contesti)
+                label: 'Punteggio',
+                data: contestiClean.data,
+                backgroundColor: '#66bb6a',
+                borderRadius: 4
             }]
         },
         options: {
             ...commonOptions,
             scales: {
-                y: { beginAtZero: true }
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true
+                    }
+                },
+                x: {
+                    title: {
+                        display: true
+                    }
+                }
             }
         }
     });
