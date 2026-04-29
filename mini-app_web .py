@@ -279,9 +279,9 @@ class QuestionariAdminHandler(tornado.web.RequestHandler):
             return
         self.render("ADMIN/questionari_admin.html", user=user.decode())
 
+
 class ScheduleHandler(tornado.web.RequestHandler):
     def get(self):
-        id_to_name = {e["id"]: e["name"] for e in demo_entities} #crea un diz con solo id:nome
         user = self.get_secure_cookie("user")
         if not user:
             self.redirect("/login")
@@ -289,6 +289,10 @@ class ScheduleHandler(tornado.web.RequestHandler):
 
         for persona in demo_students:
             if persona["username"] == user.decode():
+                if persona["assigned_entity"] is None:
+                    self.redirect("/studente/scelta_enti")
+                    return
+
                 for ente in demo_entities:
                     if ente["id"] == persona["assigned_entity"]:
                         name = ente["name"]
@@ -301,13 +305,25 @@ class ScheduleHandler(tornado.web.RequestHandler):
                         tutor = ente["tutor"]
                         tutor_phone = ente["tutor_phone"]
                         schedule = ente["schedule"]
-        # contorllo se id del prodotto che voglio modificare c'è nella lista e prendo le variabili del prodotto da modificare
-        for persona in demo_students:
-            if persona["username"] == user.decode():
-                if persona["assigned_entity"] != None:
-                    self.render("STUDENTE/schedule.html", user=user.decode(), name=name,contact=contact,phone=phone,address=address,sector=sector,site=site,capacity=capacity,tutor=tutor,tutor_phone=tutor_phone,schedule_json=json.dumps(schedule) ) # converti in stringa JSON)
-                else:
-                    self.redirect("/studente/scelta_enti")
+
+                        # converti in formato stringa per il JS
+                        schedule_js = {}
+                        for day, intervals in schedule.items():
+                            if intervals:
+                                schedule_js[day] = ", ".join(
+                                    f"{i['start']}-{i['end']}" for i in intervals
+                                )
+                            else:
+                                schedule_js[day] = ""
+
+                        self.render("STUDENTE/schedule.html",
+                                    user=user.decode(),
+                                    name=name, contact=contact, phone=phone,
+                                    address=address, sector=sector, site=site,
+                                    capacity=capacity, tutor=tutor,
+                                    tutor_phone=tutor_phone,
+                                    schedule_json=json.dumps(schedule_js))
+                        return
 class SceltaHandler(tornado.web.RequestHandler):
     def get(self):
         user = self.get_secure_cookie("user")
