@@ -232,27 +232,14 @@
         </div>
         <div class="legend-card-body">
           <!-- QUI AGGIUNGERAI LE TUE INFO - ESEMPIO -->
+          {% for id in id_to_name %}
           <div class="legend-item">
-            <div class="legend-number">1</div>
+            <div class="legend-number">{{id}}</div>
             <div class="legend-info">
-              <div class="legend-name">Comune di Modena</div>
-              <div class="legend-detail">Pubblica Amministrazione</div>
+              <div class="legend-name">{{id_to_name[id]}}</div>
             </div>
           </div>
-          <div class="legend-item">
-            <div class="legend-number">2</div>
-            <div class="legend-info">
-              <div class="legend-name">Croce Rossa Ferrara</div>
-              <div class="legend-detail">Sanità</div>
-            </div>
-          </div>
-          <div class="legend-item">
-            <div class="legend-number">3</div>
-            <div class="legend-info">
-              <div class="legend-name">Associazione Auser</div>
-              <div class="legend-detail">Sociale</div>
-            </div>
-          </div>
+          {% end %}
           <!-- FINE ESEMPIO - SOSTITUISCI CON I TUOI DATI -->
         </div>
       </div>
