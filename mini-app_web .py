@@ -2,6 +2,7 @@ import asyncio
 import tornado.web
 import tornado.escape
 import json
+import pandas as pd
 
 demo_entities = [
     {"id":0,"name": "Caritas", "contact": "info@caritas.it", "phone": "02-1234567",
@@ -261,14 +262,85 @@ class EnteHandler(tornado.web.RequestHandler):
         # pubblico la pagina add_edit.html, con le variabili modificate
         self.render("ADMIN/visualizza_enti.html", enti=enti,user=user.decode())
 
+
 class GraficiHandler(tornado.web.RequestHandler):
     def get(self):
         user = self.get_secure_cookie("user")
-
         if not user:
             self.redirect("/login")
             return
-        self.render("ADMIN/grafici.html", user=user.decode())
+
+        # 🔥 LINK GOOGLE SHEETS
+        url = "https://docs.google.com/spreadsheets/d/1GgYsNB5XGE-bEj_uKu1d9SiZram4gXO5l-AEtW5Wkl8/export?format=csv"
+
+        df = pd.read_csv(url)
+
+        data = df.to_dict(orient="records")
+
+        # -------------------------
+        # 1️⃣ TORTA
+        # -------------------------
+        scala = ["Moltissimo", "Molto", "Abbastanza", "Poco", "Per nulla"]
+        conteggio_scala = {k: 0 for k in scala}
+
+        for risposta in data:
+            for key, value in risposta.items():
+                if "In base alle domande selezionare la risposta" in key:
+                    if value in conteggio_scala:
+                        conteggio_scala[value] += 1
+
+        for risposta in data:
+            for key, value in risposta.items():
+                if "Quanto reputi interessanti i seguenti aspetti dell’attività di volontariato?" in key:
+                    if value in conteggio_scala:
+                        conteggio_scala[value] += 1
+
+
+
+        # -------------------------
+        # 2️⃣ COMPETENZE
+        # -------------------------
+        competenze_lista = [
+            "Problem solving","Empatia","Adattibilità","Autocontrollo",
+            "Lavoro di squadra/networking","Sicurezza in sé stessi",
+            "Spirito di collaborazione","Volontà di apprendere",
+            "Creatività","Pensiero critico"
+        ]
+
+        conteggio_competenze = {k: 0 for k in competenze_lista}
+
+        for risposta in data:
+            val = risposta.get("Cosa pensi di aver imparato dall’esperienza di stage? ", "")
+            for c in str(val).split(","):
+                c = c.strip()
+                if c in conteggio_competenze:
+                    conteggio_competenze[c] += 1
+
+        # -------------------------
+        # 3️⃣ CONTESTI
+        # -------------------------
+        contesti_lista = [
+            "Nel mondo della scuola","Nel mondo del lavoro",
+            "Nell'attività di volontariato",
+            "Nel mio contesto di amici","In famiglia"
+        ]
+
+        conteggio_contesti = {k: 0 for k in contesti_lista}
+
+        for risposta in data:
+            val = risposta.get("In quale contesto pensi che potresti spendere le competenze che hai sviluppato?", "")
+            for c in str(val).split(","):
+                c = c.strip()
+                if c in conteggio_contesti:
+                    conteggio_contesti[c] += 1
+
+        self.render(
+            "ADMIN/grafici.html",
+            user=user.decode(),
+            scala=json.dumps(conteggio_scala),
+            competenze=json.dumps(conteggio_competenze),
+            contesti=json.dumps(conteggio_contesti)
+        )
 
 class QuestionariAdminHandler(tornado.web.RequestHandler):
     def get(self):

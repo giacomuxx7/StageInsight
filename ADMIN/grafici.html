@@ -1,87 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
     <title>Grafici</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body { font-family: sans-serif; background: #f9f9f9; }
+
+      /* ── HEADER ── */
+      .admin-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 1.25rem 1rem;
+        background: #fff;
+        border-bottom: 0.5px solid #e0e0e0;
+      }
+      .admin-title { font-size: 24px; font-weight: 600; margin: 0; }
+      .nav-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+      .nav-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 500; text-decoration: none;
+        padding: 7px 14px; border-radius: 8px; border: 0.5px solid #ccc;
+        color: #1a1a1a; background: #fff; cursor: pointer;
+        font-family: sans-serif; white-space: nowrap;
+      }
+      .nav-btn:hover { background: #f5f5f5; }
+      .nav-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+      .logout-btn {
+        font-size: 13px; background: none; border: 0.5px solid #ccc;
+        color: #888; padding: 5px 12px; border-radius: 8px;
+        cursor: pointer; font-family: sans-serif;
+      }
+      .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
+
+      /* ── CORPO ── */
+      .page-body { padding: 1.25rem 1rem; }
+
+      /* griglia 2 colonne, su mobile 1 colonna */
+      .charts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      @media (max-width: 700px) {
+        .charts-grid { grid-template-columns: 1fr; }
+      }
+
+      /* riquadro singolo grafico */
+      .chart-card {
+        background: #fff;
+        border: 0.5px solid #e0e0e0;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      /* intestazione con titolo */
+      .chart-card-header {
+        padding: 14px 18px 12px;
+        border-bottom: 0.5px solid #e0e0e0;
+      }
+      .chart-card-header h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+        color: #1a1a1a;
+      }
+
+      /* area del grafico: altezza fissa necessaria per Chart.js */
+      .chart-card-body {
+        padding: 16px 18px;
+        position: relative;  /* richiesto da Chart.js */
+        height: 280px; /* Altezza leggermente aumentata per accomodare meglio i grafici */
+        display: flex;
+        justify-content: center;
+      }
+    </style>
 </head>
 <body>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body { font-family: sans-serif; background: #f9f9f9; }
-
-  /* ── HEADER ── */
-  .admin-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 1.25rem 1rem;
-    background: #fff;
-    border-bottom: 0.5px solid #e0e0e0;
-  }
-  .admin-title { font-size: 24px; font-weight: 600; margin: 0; }
-  .nav-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-  .nav-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 13px; font-weight: 500; text-decoration: none;
-    padding: 7px 14px; border-radius: 8px; border: 0.5px solid #ccc;
-    color: #1a1a1a; background: #fff; cursor: pointer;
-    font-family: sans-serif; white-space: nowrap;
-  }
-  .nav-btn:hover { background: #f5f5f5; }
-  .nav-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
-  .logout-btn {
-    font-size: 13px; background: none; border: 0.5px solid #ccc;
-    color: #888; padding: 5px 12px; border-radius: 8px;
-    cursor: pointer; font-family: sans-serif;
-  }
-  .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
-
-  /* ── CORPO ── */
-  .page-body { padding: 1.25rem 1rem; }
-
-  /* griglia 2 colonne, su mobile 1 colonna */
-  .charts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  @media (max-width: 700px) {
-    .charts-grid { grid-template-columns: 1fr; }
-  }
-
-  /* riquadro singolo grafico */
-  .chart-card {
-    background: #fff;
-    border: 0.5px solid #e0e0e0;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  /* intestazione con titolo */
-  .chart-card-header {
-    padding: 14px 18px 12px;
-    border-bottom: 0.5px solid #e0e0e0;
-  }
-  .chart-card-header h3 {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0;
-    color: #1a1a1a;
-  }
-
-  /* area del grafico: altezza fissa necessaria per Chart.js */
-  .chart-card-body {
-    padding: 16px 18px;
-    position: relative;  /* richiesto da Chart.js */
-    height: 240px;
-  }
-</style>
-
-<!-- HEADER -->
 <div class="admin-header">
   <div>
     <h1 class="admin-title">Benvenuto, {{ user }} 👋</h1>
@@ -106,32 +110,96 @@
   </div>
 </div>
 
-<!-- GRAFICI -->
 <div class="page-body">
   <div class="charts-grid">
 
-    <!-- Riquadro 1 -->
     <div class="chart-card">
       <div class="chart-card-header">
-        <h3>Studenti per Ente</h3>
+        <h3>Distribuzione Scala</h3>
       </div>
       <div class="chart-card-body">
-        <canvas id="chart1"></canvas>
+        <canvas id="pieChart"></canvas>
       </div>
     </div>
 
-    <!-- Riquadro 2 -->
     <div class="chart-card">
       <div class="chart-card-header">
-        <h3>Punteggi Medi Questionari</h3>
+        <h3>Punteggi Competenze</h3>
       </div>
       <div class="chart-card-body">
-        <canvas id="chart2"></canvas>
+        <canvas id="barCompetenze"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h3>Punteggi Contesti</h3>
+      </div>
+      <div class="chart-card-body">
+        <canvas id="barContesti"></canvas>
       </div>
     </div>
 
   </div>
 </div>
+
+<script>
+    const scala = {% raw scala %};
+    const competenze = {% raw competenze %};
+    const contesti = {% raw contesti %};
+
+    // Opzioni comuni per rendere i grafici responsivi all'interno dei div
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false
+    };
+
+    // 🎯 TORTA
+    new Chart(document.getElementById('pieChart'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(scala),
+            datasets: [{
+                data: Object.values(scala)
+            }]
+        },
+        options: commonOptions
+    });
+
+    // 🎯 ISTOGRAMMA COMPETENZE
+    new Chart(document.getElementById('barCompetenze'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(competenze),
+            datasets: [{
+                data: Object.values(competenze)
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // 🎯 ISTOGRAMMA CONTESTI
+    new Chart(document.getElementById('barContesti'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(contesti),
+            datasets: [{
+                data: Object.values(contesti)
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
 
 </body>
 </html>
