@@ -270,7 +270,7 @@ class GraficiHandler(tornado.web.RequestHandler):
             self.redirect("/login")
             return
 
-        # 🔥 LINK GOOGLE SHEETS
+        # LINK GOOGLE SHEETS
         url = "https://docs.google.com/spreadsheets/d/1GgYsNB5XGE-bEj_uKu1d9SiZram4gXO5l-AEtW5Wkl8/export?format=csv"
 
         df = pd.read_csv(url)
@@ -278,7 +278,7 @@ class GraficiHandler(tornado.web.RequestHandler):
         data = df.to_dict(orient="records")
 
         # -------------------------
-        # 1️⃣ TORTA
+        # TORTA
         # -------------------------
         scala = ["Moltissimo", "Molto", "Abbastanza", "Poco", "Per nulla"]
         conteggio_scala = {k: 0 for k in scala}
@@ -298,7 +298,7 @@ class GraficiHandler(tornado.web.RequestHandler):
 
 
         # -------------------------
-        # 2️⃣ COMPETENZE
+        # COMPETENZE
         # -------------------------
         competenze_lista = [
             "Problem solving","Empatia","Adattibilità","Autocontrollo",
@@ -317,7 +317,7 @@ class GraficiHandler(tornado.web.RequestHandler):
                     conteggio_competenze[c] += 1
 
         # -------------------------
-        # 3️⃣ CONTESTI
+        # CONTESTI
         # -------------------------
         contesti_lista = [
             "Nel mondo della scuola","Nel mondo del lavoro",
