@@ -7,7 +7,11 @@
 </head>
 <body>
 <style>
-      /* ── HEADER ── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { font-family: sans-serif; background: #f9f9f9; }
+
+  /* ── HEADER ── */
   .admin-header {
     display: flex; align-items: center; justify-content: space-between;
     flex-wrap: wrap; gap: 12px; padding: 1.25rem 1rem;
@@ -29,24 +33,235 @@
     cursor: pointer; font-family: sans-serif;
   }
   .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
+
+  /* ── LAYOUT DUE COLONNE ── */
+  .page-body { padding: 1.25rem 1rem; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* sotto 860px: una colonna sola */
+  @media (max-width: 860px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  /* ── CARD LEGENDA (colonna destra) ── */
+  .legend-card {
+    background: #fff;
+    border: 0.5px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    position: sticky;
+    top: 16px;
+  }
+
+  .legend-card-header {
+    padding: 14px 16px 12px;
+    border-bottom: 0.5px solid #e0e0e0;
+    background: #fafafa;
+  }
+  .legend-card-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    color: #1a1a1a;
+  }
+  .legend-card-header p {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .legend-card-body {
+    padding: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 0.5px solid #f0f0f0;
+  }
+
+  .legend-item:last-child {
+    border-bottom: none;
+  }
+
+  .legend-number {
+    width: 32px;
+    height: 32px;
+    background: #2d6a4f;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  .legend-info {
+    flex: 1;
+  }
+
+  .legend-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  .legend-detail {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  /* ── QUESTIONARIO (colonna sinistra) ── */
+  .questionario-wrap {
+    background: #fff;
+    border: 0.5px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .questionario-title {
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    border-bottom: 0.5px solid #e0e0e0;
+    background: #fafafa;
+  }
+
+  .questionario-frame {
+    width: 100%;
+    height: 600px;
+    border: none;
+  }
+
+  /* ── CARD DIZIONARIO (sotto la legenda) ── */
+  .dict-card {
+    background: #fff;
+    border: 0.5px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 16px;
+  }
+
+  .dict-header {
+    padding: 12px 16px;
+    border-bottom: 0.5px solid #e0e0e0;
+    background: #fafafa;
+  }
+  .dict-header h4 {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    color: #1a1a1a;
+  }
+  .dict-body {
+    padding: 12px 16px;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  .dict-item {
+    padding: 6px 0;
+    font-size: 12px;
+    border-bottom: 0.5px solid #f0f0f0;
+    display: flex;
+    gap: 8px;
+  }
+  .dict-number {
+    background: #e8f0e8;
+    color: #2d6a4f;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    min-width: 35px;
+    text-align: center;
+  }
+  .dict-name {
+    color: #555;
+    flex: 1;
+  }
 </style>
 
-    <!-- HEADER -->
-    <div class="admin-header">
-      <h1 class="admin-title">Benvenuto, {{ user }} 👋</h1>
-      <div class="nav-btns">
-        <a class="nav-btn" href="/studente/scelta_enti">Enti</a>
+<!-- HEADER -->
+<div class="admin-header">
+  <h1 class="admin-title">Benvenuto, {{ user }} 👋</h1>
+  <div class="nav-btns">
+    <a class="nav-btn" href="/studente/scelta_enti">Enti</a>
+    <a class="nav-btn" href="/studente/visione_ente">Schedule</a>
+    <a class="nav-btn" href="/studente/questionario">Questionario</a>
+    <form action="/login" method="get" style="margin:0;">
+      <button type="submit" class="logout-btn">Esci</button>
+    </form>
+  </div>
+</div>
 
-        <a class="nav-btn" href="/studente/visione_ente">Schedule</a>
+<!-- DUE COLONNE: QUESTIONARIO a SINISTRA, LEGENDA a DESTRA -->
+<div class="page-body">
+  <div class="two-col">
 
-        <a class="nav-btn" href="/studente/questionario">Questionario</a>
-
-        <form action="/login" method="get" style="margin:0;">
-          <button type="submit" class="logout-btn">Esci</button>
-
-        </form>
-      </div>
+    <!-- COLONNA SINISTRA: QUESTIONARIO GOOGLE -->
+    <div class="questionario-wrap">
+      <iframe
+        src="https://docs.google.com/forms/d/e/1FAIpQLSd0FUQXaEGhhfaJSvUn0LZntCiu8kFfey90AKoGMO_2f8NJGA/viewform?embedded=true"
+        class="questionario-frame"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0">
+        Caricamento…
+      </iframe>
     </div>
-    {{id_to_name}}
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd0FUQXaEGhhfaJSvUn0LZntCiu8kFfey90AKoGMO_2f8NJGA/viewform?embedded=true" width="640" height="5613" frameborder="0" marginheight="0" marginwidth="0">Caricamento…</iframe>    </body>
+
+    <!-- COLONNA DESTRA: LEGENDA  -->
+    <div>
+      <!-- Card Legenda (tu aggiungerai le info qui) -->
+      <div class="legend-card">
+        <div class="legend-card-header">
+          <h3>Legenda Enti</h3>
+          <p>Corrispondenza numeri → enti</p>
+        </div>
+        <div class="legend-card-body">
+          <!-- QUI AGGIUNGERAI LE TUE INFO - ESEMPIO -->
+          <div class="legend-item">
+            <div class="legend-number">1</div>
+            <div class="legend-info">
+              <div class="legend-name">Comune di Modena</div>
+              <div class="legend-detail">Pubblica Amministrazione</div>
+            </div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-number">2</div>
+            <div class="legend-info">
+              <div class="legend-name">Croce Rossa Ferrara</div>
+              <div class="legend-detail">Sanità</div>
+            </div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-number">3</div>
+            <div class="legend-info">
+              <div class="legend-name">Associazione Auser</div>
+              <div class="legend-detail">Sociale</div>
+            </div>
+          </div>
+          <!-- FINE ESEMPIO - SOSTITUISCI CON I TUOI DATI -->
+        </div>
+      </div>
+
+
+    </div>
+
+  </div>
+</div>
+
+</body>
 </html>
