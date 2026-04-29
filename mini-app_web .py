@@ -455,7 +455,8 @@ class QuestionarioStudenteHandler(tornado.web.RequestHandler):
         if not user:
             self.redirect("/login")
             return
-        self.render("STUDENTE/questionario_studenti.html", user=user.decode())
+        id_to_name = {e["id"]: e["name"] for e in demo_entities} #crea un diz con solo id:nome
+        self.render("STUDENTE/questionario_studenti.html", user=user.decode(),id_to_name=id_to_name)
 
 
 class ReferenteHandler(tornado.web.RequestHandler):
