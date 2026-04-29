@@ -272,39 +272,58 @@ class GraficiHandler(tornado.web.RequestHandler):
 
         # LINK GOOGLE SHEETS
         url = "https://docs.google.com/spreadsheets/d/1GgYsNB5XGE-bEj_uKu1d9SiZram4gXO5l-AEtW5Wkl8/export?format=csv"
-
         df = pd.read_csv(url)
-
         data = df.to_dict(orient="records")
 
         # -------------------------
-        # TORTA
+        # 1. LETTURA DEL FILTRO
+        # -------------------------
+        # Uso get_argument perché il form è method="GET"
+        id_filtro = self.get_argument("id_filtro", "")
+        enti = demo_entities
+
+        # Creo mappe di utilità
+        id_to_name = {e["id"]: e["name"] for e in demo_entities}
+        name_to_id = {e["name"]: str(e["id"]) for e in demo_entities}
+
+        # -------------------------
+        # 2. FILTRAGGIO DEI DATI
+        # -------------------------
+        if id_filtro and id_filtro in name_to_id:
+            target_id = name_to_id[id_filtro]
+            dati_filtrati = []
+            for risposta in data:
+                # Prendo l'ID dell'ente inserito nel modulo Google (convertito in stringa per sicurezza)
+                ente_id_risposta = str(
+                    risposta.get("Inserisci il numero in riferimento all'ente in cui sei stato (guardare legenda)",
+                                 "")).strip()
+
+                # Se l'ID corrisponde a quello cercato, tengo la riga
+                if ente_id_risposta == target_id:
+                    dati_filtrati.append(risposta)
+
+            data = dati_filtrati  # Sostituisco il dataset completo con quello filtrato
+
+        # -------------------------
+        # TORTA (Ora usa 'data' che è eventualmente filtrato)
         # -------------------------
         scala = ["Moltissimo", "Molto", "Abbastanza", "Poco", "Per nulla"]
         conteggio_scala = {k: 0 for k in scala}
 
         for risposta in data:
             for key, value in risposta.items():
-                if "In base alle domande selezionare la risposta" in key:
+                if "In base alle domande selezionare la risposta" in key or "Quanto reputi interessanti i seguenti aspetti dell’attività di volontariato?" in key:
                     if value in conteggio_scala:
                         conteggio_scala[value] += 1
-
-        for risposta in data:
-            for key, value in risposta.items():
-                if "Quanto reputi interessanti i seguenti aspetti dell’attività di volontariato?" in key:
-                    if value in conteggio_scala:
-                        conteggio_scala[value] += 1
-
-
 
         # -------------------------
         # COMPETENZE
         # -------------------------
         competenze_lista = [
-            "Problem solving","Empatia","Adattibilità","Autocontrollo",
-            "Lavoro di squadra/networking","Sicurezza in sé stessi",
-            "Spirito di collaborazione","Volontà di apprendere",
-            "Creatività","Pensiero critico"
+            "Problem solving", "Empatia", "Adattibilità", "Autocontrollo",
+            "Lavoro di squadra/networking", "Sicurezza in sé stessi",
+            "Spirito di collaborazione", "Volontà di apprendere",
+            "Creatività", "Pensiero critico"
         ]
 
         conteggio_competenze = {k: 0 for k in competenze_lista}
@@ -320,9 +339,9 @@ class GraficiHandler(tornado.web.RequestHandler):
         # CONTESTI
         # -------------------------
         contesti_lista = [
-            "Nel mondo della scuola","Nel mondo del lavoro",
+            "Nel mondo della scuola", "Nel mondo del lavoro",
             "Nell'attività di volontariato",
-            "Nel mio contesto di amici","In famiglia"
+            "Nel mio contesto di amici", "In famiglia"
         ]
 
         conteggio_contesti = {k: 0 for k in contesti_lista}
@@ -334,12 +353,16 @@ class GraficiHandler(tornado.web.RequestHandler):
                 if c in conteggio_contesti:
                     conteggio_contesti[c] += 1
 
+        # Renderizzo la pagina passando l'id_filtro corretto
         self.render(
             "ADMIN/grafici.html",
             user=user.decode(),
             scala=json.dumps(conteggio_scala),
             competenze=json.dumps(conteggio_competenze),
-            contesti=json.dumps(conteggio_contesti)
+            contesti=json.dumps(conteggio_contesti),
+            id_to_name=id_to_name,
+            enti=enti,
+            id_filtro=id_filtro
         )
 
 class QuestionariAdminHandler(tornado.web.RequestHandler):
