@@ -117,6 +117,7 @@
   .cal-row {
     display: grid;
     grid-template-columns: 44px repeat(6, 1fr);
+    height: 28px;
     border-bottom: 0.5px solid #e0e0e0;
   }
   .cal-row:last-child { border-bottom: none; }
@@ -132,9 +133,9 @@
 
   /* cella giorno */
   .cal-cell {
-    height: 28px;          /* altezza di ogni ora = 28px */
     border-right: 0.5px solid #e0e0e0;
     position: relative;
+    min-height: 0;
   }
   .cal-cell:last-child { border-right: none; }
 
@@ -237,7 +238,15 @@
 <script>
   const HOURS = ['08:00','09:00','10:00','11:00','12:00',
                  '13:00','14:00','15:00','16:00','17:00'];
-  const ROW_H = 28;
+  let ROW_H = 28;
+
+  // Rileva l'altezza reale della riga (cambia con lo zoom)
+  function updateRowHeight() {
+    const firstRow = document.querySelector('.cal-row');
+    if (firstRow) {
+      ROW_H = firstRow.getBoundingClientRect().height;
+    }
+  }
 
   const body = document.getElementById('calBody');
 
@@ -312,11 +321,21 @@
 
   // Aspetta che il DOM sia pronto e disegna gli eventi
   window.addEventListener('DOMContentLoaded', () => {
+    updateRowHeight();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         drawEvents();
       });
     });
+  });
+
+  // Ricalcola quando si fa zoom o resize
+  window.addEventListener('resize', () => {
+    // Pulisci eventi esistenti
+    document.querySelectorAll('.evento').forEach(el => el.remove());
+    document.querySelectorAll('.cell-text').forEach(el => el.remove());
+    updateRowHeight();
+    drawEvents();
   });
 </script>
 </body>

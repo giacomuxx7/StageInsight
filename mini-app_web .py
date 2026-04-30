@@ -30,6 +30,14 @@ demo_entities = [
 ]
 demo_students = [
     {
+        "username": "studente",
+        "password": "",
+        "school":"Fermi",
+        "choices": ["Croce Rossa"],
+        "entities": None,
+        "assigned_entity":None
+    },
+    {
         "username": "ari",
         "password": "",
         "school":"Fermi",
@@ -38,13 +46,13 @@ demo_students = [
         "assigned_entity":None
     },
     {
-        "username": "w",
+        "username": "giacomo",
         "password": "",
-        "school": "Corni",
-        "choices": ["Legambiente", "Croce Rossa", "Caritas"],
+        "school":"Fermi",
+        "choices": ["Legambiente"],
         "entities": None,
         "assigned_entity":None
-    }
+    },
 ]
 
 demo_referent = [
@@ -62,11 +70,13 @@ class LoginHandler(tornado.web.RequestHandler):
         username = self.get_body_argument("username")
         password = self.get_body_argument("password")
 
-
         if username == "admin" and password == "":
             self.set_secure_cookie("user", username)
             self.redirect("/enti")
         elif username == "ari" and password == "":
+            self.set_secure_cookie("user", username)
+            self.redirect("/studente/scelta_enti")
+        elif username == "studente" and password == "":
             self.set_secure_cookie("user", username)
             self.redirect("/studente/scelta_enti")
         elif username == "ref" and password == "":

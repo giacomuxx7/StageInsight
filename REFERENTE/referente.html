@@ -211,8 +211,7 @@
                         <select name="ente_id">
                           <option value="">— Seleziona —</option>
                           {% for ente in enti %}
-                            <option value="{{ ente['id'] }}">
-                              {{ ente['name'] }}
+                            <option value="{{ ente['id'] }}" {% if studente['assigned_entity'] == ente['id'] %}selected{% end %}>                              {{ ente['name'] }}
                             </option>
                             </option>
                           {% end %}
