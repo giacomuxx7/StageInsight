@@ -241,7 +241,7 @@
                 {% for day in ente['schedule'] %}
                   {% set intervals = ente['schedule'][day] %}
                   {% if intervals %}
-                    {% if not first %}, {% end %}
+                    {% if not first %}<br> {% end %}
                     {{ day }}:
                     {% for i in intervals %}
                       {{ i["start"] }}-{{ i["end"] }}{% if i != intervals[-1] %}/{% end %}
