@@ -33,7 +33,7 @@ demo_students = [
         "username": "ari",
         "password": "",
         "school":"Fermi",
-        "choices": ["Cacca"],
+        "choices": ["Caritas"],
         "entities": None,
         "assigned_entity":None
     },
