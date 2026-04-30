@@ -295,8 +295,6 @@
           <th>Sector</th>
           <th>Site</th>
           <th>Capacity</th>
-          <th>Tutor</th>
-          <th>Tutor phone</th>
           <th>Schedule</th>
         </tr>
         {% for ente in enti %}
@@ -314,8 +312,6 @@
               {% end %}
             </td>
             <td>{{ ente['capacity'] }}</td>
-            <td>{{ ente['tutor'] }}</td>
-            <td>{{ ente['tutor_phone'] }}</td>
             <td class="sched">
               {% set first = True %}
               {% for day in ente['schedule'] %}
