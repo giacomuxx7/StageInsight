@@ -710,6 +710,25 @@ body {
   <span class="csv-footer-text"><strong>CSV Terre Estensi ODV</strong> · Viale della Cittadella, 30 · 41123 Modena</span>
   <a href="https://www.csvterrestensi.it" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:11px;">csvterrestensi.it →</a>
 </footer>
+<script>
+  const selects = ['primo', 'secondo', 'terzo'].map(n => document.querySelector(`select[name="${n}"]`));
 
+  function aggiornaOpzioni() {
+    const scelte = selects.map(s => s.value);
+
+    selects.forEach((sel, i) => {
+      const valoreCorrente = sel.value;
+      Array.from(sel.options).forEach(opt => {
+        if (opt.value === '') return; // lascia sempre il placeholder
+        const usataDaAltri = scelte.some((v, j) => j !== i && v === opt.value);
+        opt.disabled = usataDaAltri;
+        opt.style.color = usataDaAltri ? '#aaa' : '';
+      });
+    });
+  }
+
+  selects.forEach(sel => sel.addEventListener('change', aggiornaOpzioni));
+  aggiornaOpzioni(); // esegui subito al caricamento
+</script>
 </body>
 </html>
