@@ -1,297 +1,694 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <title>Grafici</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
+  <title>CSV Terre Estensi — Grafici & Statistiche</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* === CSV TERRE ESTENSI — SHARED STYLES === */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Source+Sans+3:wght@400;600;700&display=swap');
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+:root {
+  --csv-green:      #1a5fa0;
+  --csv-green-dark: #144d8a;
+  --csv-green-deep: #0d3a6e;
+  --csv-green-light:#e8f0fb;
+  --csv-green-mid:  #b8d4f0;
+  --csv-orange:     #e07b1a;
+  --csv-orange-light: #fff3e0;
+  --csv-white:      #ffffff;
+  --csv-bg:         #f4f6fb;
+  --csv-border:     #c8d8f0;
+  --csv-text:       #1a1f2e;
+  --csv-text-light: #4a5a80;
+  --csv-red:        #c0392b;
+  --csv-red-light:  #fef0ef;
+  --radius:         6px;
+  --radius-lg:      10px;
+  --shadow-sm:      0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:      0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+}
 
-    <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-      body { font-family: sans-serif; background: #f9f9f9; }
+body {
+  font-family: 'Source Sans 3', 'Lato', sans-serif;
+  background: var(--csv-bg);
+  color: var(--csv-text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
-      /* ── HEADER ── */
-      .admin-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 12px;
-        padding: 1.25rem 1rem;
-        background: #fff;
-        border-bottom: 0.5px solid #e0e0e0;
-      }
-      .admin-title { font-size: 24px; font-weight: 600; margin: 0; }
-      .nav-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-      .nav-btn {
-        display: inline-flex; align-items: center; gap: 6px;
-        font-size: 13px; font-weight: 500; text-decoration: none;
-        padding: 7px 14px; border-radius: 8px; border: 0.5px solid #ccc;
-        color: #1a1a1a; background: #fff; cursor: pointer;
-        font-family: sans-serif; white-space: nowrap;
-      }
-      .nav-btn:hover { background: #f5f5f5; }
-      .nav-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
-      .logout-btn {
-        font-size: 13px; background: none; border: 0.5px solid #ccc;
-        color: #888; padding: 5px 12px; border-radius: 8px;
-        cursor: pointer; font-family: sans-serif;
-      }
-      .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
+/* ── TOP BAR (sito ufficiale strip) ── */
+.csv-topbar {
+  background: var(--csv-green-deep);
+  padding: 5px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.01em;
+}
+.csv-topbar a { color: rgba(255,255,255,0.65); text-decoration: none; }
+.csv-topbar a:hover { color: #fff; }
+.csv-topbar-left { display: flex; align-items: center; gap: 6px; }
+.csv-topbar-left svg { width: 12px; height: 12px; flex-shrink: 0; }
 
-      /* ── CORPO ── */
-      .page-body { padding: 1.25rem 1rem; }
+/* ── MAIN HEADER ── */
+.csv-header {
+  background: var(--csv-green);
+  border-bottom: 3px solid var(--csv-orange);
+  padding: 0 20px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  min-height: 58px;
+}
 
-      /* griglia 2 colonne, su mobile 1 colonna */
-      .charts-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-      }
-      @media (max-width: 700px) {
-        .charts-grid { grid-template-columns: 1fr; }
-      }
+.csv-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  text-decoration: none;
+}
 
-      /* riquadro singolo grafico */
-      .chart-card {
-        background: #fff;
-        border: 0.5px solid #e0e0e0;
-        border-radius: 12px;
-        overflow: hidden;
-      }
+.csv-logo-mark {
+  width: 38px;
+  height: 38px;
+  background: rgba(255,255,255,0.12);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.csv-logo-mark svg { color: #fff; }
 
-      /* intestazione con titolo */
-      .chart-card-header {
-        padding: 14px 18px 12px;
-        border-bottom: 0.5px solid #e0e0e0;
-      }
+.csv-brand-text {}
+.csv-brand-name {
+  font-family: 'Lato', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.csv-brand-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
 
-      .chart-card-header h3 {
-        font-size: 14px;
-        font-weight: 600;
-        margin: 0;
-        color: #1a1a1a;
-      }
+.csv-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
 
-      /* area del grafico: altezza fissa necessaria per Chart.js */
-      .chart-card-body {
-        padding: 16px 18px;
-        position: relative;
-        height: 280px;
-        display: flex;
-        justify-content: center;
-      }
-    </style>
+.csv-nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  padding: 8px 13px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  background: transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  height: 100%;
+  align-self: center;
+}
+.csv-nav-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+.csv-nav-item:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+}
+.csv-nav-item.active {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+
+.csv-header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 10px 14px;
+  border-left: 1px solid rgba(255,255,255,0.15);
+  margin-left: 8px;
+}
+.csv-user-name {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  font-weight: 600;
+}
+.csv-logout-btn {
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.85);
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  letter-spacing: 0.02em;
+}
+.csv-logout-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+/* ── BREADCRUMB / PAGE HEADER ── */
+.csv-page-header {
+  background: #fff;
+  border-bottom: 1px solid var(--csv-border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.csv-page-header h1 {
+  font-family: 'Lato', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--csv-text);
+  letter-spacing: -0.01em;
+}
+.csv-page-header-tag {
+  font-size: 11px;
+  color: var(--csv-text-light);
+  background: var(--csv-green-light);
+  border: 1px solid var(--csv-green-mid);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── PAGE BODY ── */
+.page-body { padding: 20px; }
+
+/* ── TABLE COMPONENT ── */
+.csv-table-wrap {
+  background: #fff;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.csv-table-toolbar {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--csv-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #fafbfe;
+}
+.csv-table-toolbar-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--csv-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.csv-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 700px;
+}
+.csv-table-wrap th {
+  background: #eef3fb;
+  color: var(--csv-text-light);
+  font-weight: 700;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--csv-border);
+  white-space: nowrap;
+}
+.csv-table-wrap td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #eaf0fb;
+  color: var(--csv-text);
+  vertical-align: middle;
+}
+.csv-table-wrap tr:last-child td { border-bottom: none; }
+.csv-table-wrap tr:hover td { background: #f5f8fd; }
+.tbl-col { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ── BUTTONS ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--csv-green);
+  border: none;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: background 0.15s;
+  letter-spacing: 0.01em;
+}
+.btn-primary:hover { background: var(--csv-green-dark); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--csv-green);
+  background: var(--csv-green-light);
+  border: 1px solid var(--csv-green-mid);
+  padding: 6px 13px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.btn-secondary:hover { background: var(--csv-green-mid); }
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--csv-text-light);
+  background: #fff;
+  border: 1px solid var(--csv-border);
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.btn-outline:hover { background: var(--csv-bg); border-color: #b0c4b8; }
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--csv-red);
+  background: var(--csv-red-light);
+  border: 1px solid #f0bfbb;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.btn-danger:hover { background: #fde0de; }
+
+/* Legacy compat */
+.btn-aggiungi { @extend .btn-secondary; }
+.btn-modifica  { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; color: var(--csv-text-light); background: #fff; border: 1px solid var(--csv-border); padding: 5px 11px; border-radius: var(--radius); cursor: pointer; font-family: inherit; text-decoration: none; transition: all 0.15s; }
+.btn-modifica:hover { background: var(--csv-bg); }
+.btn-delete { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; color: var(--csv-red); background: var(--csv-red-light); border: 1px solid #f0bfbb; padding: 5px 11px; border-radius: var(--radius); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.btn-delete:hover { background: #fde0de; }
+.btn-save { font-size: 13px; font-weight: 700; padding: 9px 20px; border-radius: var(--radius); border: none; background: var(--csv-green); color: #fff; cursor: pointer; font-family: inherit; transition: background 0.15s; letter-spacing: 0.01em; }
+.btn-save:hover { background: var(--csv-green-dark); }
+.btn-cancel { font-size: 13px; padding: 9px 16px; border-radius: var(--radius); border: 1px solid var(--csv-border); background: #fff; color: var(--csv-text-light); cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.15s; }
+.btn-cancel:hover { background: var(--csv-bg); }
+
+.azioni-cell { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+/* ── CARDS ── */
+.card {
+  background: #fff;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.card-header {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--csv-border);
+  background: var(--csv-green);
+}
+.card-header h2, .card-header h3 {
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+  letter-spacing: 0.01em;
+}
+.card-header p { font-size: 12px; color: rgba(255,255,255,0.65); }
+.card-body { padding: 16px 18px; }
+.card-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--csv-border);
+  background: #fafbfe;
+}
+
+/* ── FORM FIELDS ── */
+.fg { margin-bottom: 14px; }
+.fg label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--csv-text-light);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.fg input, .fg select, .fg textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--csv-text);
+  outline: none;
+  font-family: inherit;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus {
+  border-color: var(--csv-green);
+  box-shadow: 0 0 0 3px rgba(26,95,160,0.1);
+}
+.fg input::placeholder { color: #b0bdb5; }
+
+/* ── SCHEDULE/CALENDAR ── */
+.sched { font-size: 11px; color: #7a8aac; max-width: 150px; white-space: normal; word-break: break-word; line-height: 1.6; }
+
+/* ── SITE LINK ── */
+.site-link { color: var(--csv-green); text-decoration: none; font-size: 12px; }
+.site-link:hover { text-decoration: underline; }
+
+/* ── STATUS BADGES ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+.badge-green { background: var(--csv-green-light); color: var(--csv-green-dark); border: 1px solid var(--csv-green-mid); }
+.badge-orange { background: var(--csv-orange-light); color: #9a5610; border: 1px solid #f0d4a0; }
+.badge-gray { background: #f0f2f0; color: #6a7a70; border: 1px solid #d4dcd6; }
+
+/* ── FOOTER STRIP ── */
+.csv-footer {
+  background: var(--csv-green-deep);
+  border-top: 3px solid var(--csv-orange);
+  padding: 16px 20px;
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.csv-footer-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+}
+.csv-footer-text strong { color: rgba(255,255,255,0.75); }
+
+@media (max-width: 640px) {
+  .csv-header { padding: 0 12px; }
+  .csv-header-brand { gap: 8px; }
+  .csv-brand-sub { display: none; }
+  .page-body { padding: 12px; }
+  .csv-header-user .csv-user-name { display: none; }
+}
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 700px) { .charts-grid { grid-template-columns: 1fr; } }
+
+  .chart-card {
+    background: #fff;
+    border: 1px solid var(--csv-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .chart-card-header {
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid var(--csv-border);
+    background: #eef3fb;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chart-card-header::before {
+    content: '';
+    width: 3px;
+    height: 16px;
+    background: var(--csv-green);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .chart-card-header h3 {
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--csv-text);
+    letter-spacing: 0.01em;
+  }
+  .chart-card-body {
+    padding: 16px;
+    height: 280px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+
+  .filter-card {
+    background: #fff;
+    border: 1px solid var(--csv-border);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+  }
+  .filter-card-title {
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--csv-text);
+    margin-bottom: 4px;
+  }
+  .filter-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--csv-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .filter-card select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--csv-border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--csv-text);
+    outline: none;
+    font-family: inherit;
+    background: var(--csv-bg);
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .filter-card select:focus {
+    border-color: var(--csv-green);
+    box-shadow: 0 0 0 3px rgba(26,95,160,0.1);
+  }
+</style>
 </head>
 <body>
 
-<div class="admin-header">
-  <div>
-    <h1 class="admin-title">Benvenuto, {{ user }} </h1>
+<!-- TOPBAR -->
+<div class="csv-topbar">
+  <div class="csv-topbar-left">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+    <a href="https://www.csvterrestensi.it" target="_blank">csvterrestensi.it</a>
+    &nbsp;·&nbsp; Viale della Cittadella, 30 — 41123 Modena
   </div>
+  <span>Portale PCTO — Area Amministratore</span>
+</div>
 
-  <div class="nav-btns">
-    <a class="nav-btn" href="/enti">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+<!-- MAIN HEADER -->
+<header class="csv-header">
+  <a class="csv-header-brand" href="/enti">
+    <div class="csv-logo-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+    <div class="csv-brand-text">
+      <div class="csv-brand-name">CSV Terre Estensi</div>
+      <div class="csv-brand-sub">Portale PCTO — Amministratore</div>
+    </div>
+  </a>
+
+  <nav class="csv-header-nav">
+    <a class="csv-nav-item" href="/enti">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
       Enti
     </a>
-    <a class="nav-btn" href="/grafici">
+    <a class="csv-nav-item active" href="/grafici">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Grafici
     </a>
-    <a class="nav-btn" href="/questionari">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <a class="csv-nav-item" href="/questionari">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       Questionari
     </a>
+  </nav>
+
+  <div class="csv-header-user">
+    <span class="csv-user-name">{{ user }}</span>
     <form action="/login" method="get" style="margin:0;">
-      <button type="submit" class="logout-btn">Esci</button>
+      <button type="submit" class="csv-logout-btn">Esci</button>
     </form>
   </div>
+</header>
+
+<!-- PAGE HEADER -->
+<div class="csv-page-header">
+  <h1>Grafici & Statistiche</h1>
+  <span class="csv-page-header-tag">Admin</span>
 </div>
 
+<!-- PAGE CONTENT -->
 <div class="page-body">
   <div class="charts-grid">
-
     <div class="chart-card">
-      <div class="chart-card-header">
-        <h3>Distribuzione Scala</h3>
-      </div>
-      <div class="chart-card-body">
-        <canvas id="pieChart"></canvas>
-      </div>
+      <div class="chart-card-header"><h3>Distribuzione Scala</h3></div>
+      <div class="chart-card-body"><canvas id="pieChart"></canvas></div>
     </div>
-
     <div class="chart-card">
-      <div class="chart-card-header">
-        <h3>Cosa pensi di aver imparato dall’esperienza di stage?</h3>
-      </div>
-      <div class="chart-card-body">
-        <canvas id="barCompetenze"></canvas>
-      </div>
+      <div class="chart-card-header"><h3>Punteggi Competenze</h3></div>
+      <div class="chart-card-body"><canvas id="barCompetenze"></canvas></div>
     </div>
-
     <div class="chart-card">
-      <div class="chart-card-header">
-        <h3>In quale contesto pensi che potresti spendere le competenze che hai sviluppato?</h3>
-      </div>
-      <div class="chart-card-body">
-        <canvas id="barContesti"></canvas>
-      </div>
+      <div class="chart-card-header"><h3>Punteggi Contesti</h3></div>
+      <div class="chart-card-body"><canvas id="barContesti"></canvas></div>
     </div>
-
-    <div>
-    <form action="/grafici" method="get">
-      <div class="card">
-        <div class="card-body">
-          <div class="pref-row">
-            <span class="pref-label">Filtro enti</span>
-              <select name="id_filtro" onchange="this.form.submit()">
-              <option value="">— Tutti gli enti —</option>
-              {% for ente in enti %}
-                <option value="{{ ente['name'] }}" {% if ente['name'] == id_filtro %}selected{% end %}>
-                  {{ ente['name'] }}
-                </option>
-              {% end %}
-            </select>
-          </div>
-        </div>
-      </div>
-    </form>
+    <div class="filter-card">
+      <div class="filter-card-title">Filtra statistiche</div>
+      <form action="/grafici" method="get">
+        <label class="filter-label">Filtra per ente</label>
+        <select name="id_filtro" onchange="this.form.submit()">
+          <option value="">— Tutti gli enti —</option>
+          {% for ente in enti %}
+            <option value="{{ ente['name'] }}" {% if ente['name'] == id_filtro %}selected{% end %}>
+              {{ ente['name'] }}
+            </option>
+          {% end %}
+        </select>
+      </form>
     </div>
   </div>
 </div>
 
+<footer class="csv-footer">
+  <span class="csv-footer-text"><strong>CSV Terre Estensi ODV</strong> · Viale della Cittadella, 30 · 41123 Modena</span>
+  <a href="https://www.csvterrestensi.it" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:11px;">csvterrestensi.it →</a>
+</footer>
+
 <script>
-    const scala = {% raw scala %};
-    const competenze = {% raw competenze %};
-    const contesti = {% raw contesti %};
+  const scala = {% raw scala %};
+  const competenze = {% raw competenze %};
+  const contesti = {% raw contesti %};
 
-    // Funzione per pulire undefined dalle labels
-    function cleanLabelsAndData(obj) {
-        const cleanedLabels = [];
-        const cleanedData = [];
-
-        for (const [key, value] of Object.entries(obj)) {
-            // Salta chiavi undefined, null, vuote o che sono "undefined" come stringa
-            if (key && key !== 'undefined' && key !== 'null' && key !== '') {
-                cleanedLabels.push(key);
-                cleanedData.push(value || 0);
-            }
-        }
-
-        // Se dopo la pulizia non ci sono dati, aggiungi un placeholder
-        if (cleanedLabels.length === 0) {
-            cleanedLabels.push('Nessun dato');
-            cleanedData.push(0);
-        }
-
-        return { labels: cleanedLabels, data: cleanedData };
+  function cleanLabelsAndData(obj) {
+    const cleanedLabels = [], cleanedData = [];
+    for (const [key, value] of Object.entries(obj)) {
+      if (key && key !== 'undefined' && key !== 'null' && key !== '') {
+        cleanedLabels.push(key);
+        cleanedData.push(value || 0);
+      }
     }
+    if (cleanedLabels.length === 0) { cleanedLabels.push('Nessun dato'); cleanedData.push(0); }
+    return { labels: cleanedLabels, data: cleanedData };
+  }
 
-    // Opzioni comuni per rendere i grafici responsivi
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.label || '';
-                        let value = context.raw || 0;
-                        return `${label}: ${value}`;
-                    }
-                }
-            }
-        }
-    };
+  const csvColors = ['#1a5fa0','#2d9d57','#40bf72','#74d99a','#a8edc1','#d8f3e3','#144d8a','#0d3a6e','#388a55','#6ab87f'];
 
-    // PULIZIA DATI PER LA TORTA
-    const pieClean = cleanLabelsAndData(scala);
+  const commonOptions = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { family: "'Source Sans 3', sans-serif", size: 12 } } },
+      tooltip: { callbacks: { label: ctx => `${ctx.label || ''}: ${ctx.raw || 0}` } }
+    }
+  };
 
-    // TORTA
-    new Chart(document.getElementById('pieChart'), {
-        type: 'pie',
-        data: {
-            labels: pieClean.labels,
-            datasets: [{
-                data: pieClean.data,
-                backgroundColor: [
-                    '#4caf50', '#2196f3', '#ff9800', '#f44336', '#9c27b0',
-                    '#00bcd4', '#ffeb3b', '#795548', '#607d8b', '#e91e63'
-                ]
-            }]
-        },
-        options: commonOptions
-    });
+  const pieClean = cleanLabelsAndData(scala);
+  new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: { labels: pieClean.labels, datasets: [{ data: pieClean.data, backgroundColor: csvColors }] },
+    options: commonOptions
+  });
 
-    // PULIZIA DATI PER LE BARRE
-    const competenzeClean = cleanLabelsAndData(competenze);
-    const contestiClean = cleanLabelsAndData(contesti);
+  const compClean = cleanLabelsAndData(competenze);
+  new Chart(document.getElementById('barCompetenze'), {
+    type: 'bar',
+    data: { labels: compClean.labels, datasets: [{ label: 'Punteggio', data: compClean.data, backgroundColor: '#1a5fa0', borderRadius: 4 }] },
+    options: { ...commonOptions, scales: { y: { beginAtZero: true }, x: {} } }
+  });
 
-    // ISTOGRAMMA COMPETENZE
-    new Chart(document.getElementById('barCompetenze'), {
-        type: 'bar',
-        data: {
-            labels: competenzeClean.labels,
-            datasets: [{
-                label: 'Punteggio',
-                data: competenzeClean.data,
-                backgroundColor: '#42a5f5',
-                borderRadius: 4
-            }]
-        },
-        options: {
-            ...commonOptions,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true
-                    }
-                },
-                x: {
-                    title: {
-                        display: true
-                    }
-                }
-            }
-        }
-    });
-
-    // ISTOGRAMMA CONTESTI
-    new Chart(document.getElementById('barContesti'), {
-        type: 'bar',
-        data: {
-            labels: contestiClean.labels,
-            datasets: [{
-                label: 'Punteggio',
-                data: contestiClean.data,
-                backgroundColor: '#66bb6a',
-                borderRadius: 4
-            }]
-        },
-        options: {
-            ...commonOptions,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true
-                    }
-                },
-                x: {
-                    title: {
-                        display: true
-                    }
-                }
-            }
-        }
-    });
+  const contClean = cleanLabelsAndData(contesti);
+  new Chart(document.getElementById('barContesti'), {
+    type: 'bar',
+    data: { labels: contClean.labels, datasets: [{ label: 'Punteggio', data: contClean.data, backgroundColor: '#e07b1a', borderRadius: 4 }] },
+    options: { ...commonOptions, scales: { y: { beginAtZero: true }, x: {} } }
+  });
 </script>
 
 </body>

@@ -1,85 +1,527 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <title>Grafici</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
+  <title>CSV Terre Estensi — Questionari</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
 <style>
-    /* ── HEADER ── */
-  .admin-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 1.25rem 1rem;
-    background: #fff;
-    border-bottom: 0.5px solid #e0e0e0;
-  }
+    /* === CSV TERRE ESTENSI — SHARED STYLES === */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Source+Sans+3:wght@400;600;700&display=swap');
 
-  .admin-title { font-size: 24px; font-weight: 600; margin: 0; }
+:root {
+  --csv-green:      #1a7a3c;
+  --csv-green-dark: #145e2e;
+  --csv-green-deep: #0e4722;
+  --csv-green-light:#e8f5ed;
+  --csv-green-mid:  #c8e6d0;
+  --csv-orange:     #e07b1a;
+  --csv-orange-light: #fff3e0;
+  --csv-white:      #ffffff;
+  --csv-bg:         #f5f7f5;
+  --csv-border:     #d4e0d8;
+  --csv-text:       #1c2b1f;
+  --csv-text-light: #5a7060;
+  --csv-red:        #c0392b;
+  --csv-red-light:  #fef0ef;
+  --radius:         6px;
+  --radius-lg:      10px;
+  --shadow-sm:      0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:      0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+}
 
-  .nav-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .nav-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    padding: 7px 14px;
-    border-radius: 8px;
-    border: 0.5px solid #ccc;
-    color: #1a1a1a;
-    background: #fff;
-    cursor: pointer;
-    font-family: sans-serif;
-    white-space: nowrap;
-  }
-  .nav-btn:hover { background: #f5f5f5; }
-  .nav-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+body {
+  font-family: 'Source Sans 3', 'Lato', sans-serif;
+  background: var(--csv-bg);
+  color: var(--csv-text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
-  .logout-btn {
-    font-size: 13px;
-    background: none;
-    border: 0.5px solid #ccc;
-    color: #888;
-    padding: 5px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: sans-serif;
-  }
-  .logout-btn:hover { background: #f5f5f5; color: #1a1a1a; }
-  .chart-wrap { position:relative; height:240px; }
+/* ── TOP BAR (sito ufficiale strip) ── */
+.csv-topbar {
+  background: var(--csv-green-deep);
+  padding: 5px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.01em;
+}
+.csv-topbar a { color: rgba(255,255,255,0.65); text-decoration: none; }
+.csv-topbar a:hover { color: #fff; }
+.csv-topbar-left { display: flex; align-items: center; gap: 6px; }
+.csv-topbar-left svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+/* ── MAIN HEADER ── */
+.csv-header {
+  background: var(--csv-green);
+  border-bottom: 3px solid var(--csv-orange);
+  padding: 0 20px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  min-height: 58px;
+}
+
+.csv-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  text-decoration: none;
+}
+
+.csv-logo-mark {
+  width: 38px;
+  height: 38px;
+  background: rgba(255,255,255,0.12);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.csv-logo-mark svg { color: #fff; }
+
+.csv-brand-text {}
+.csv-brand-name {
+  font-family: 'Lato', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.csv-brand-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.csv-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.csv-nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  padding: 8px 13px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  background: transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  height: 100%;
+  align-self: center;
+}
+.csv-nav-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+.csv-nav-item:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+}
+.csv-nav-item.active {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+
+.csv-header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 10px 14px;
+  border-left: 1px solid rgba(255,255,255,0.15);
+  margin-left: 8px;
+}
+.csv-user-name {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  font-weight: 600;
+}
+.csv-logout-btn {
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.85);
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  letter-spacing: 0.02em;
+}
+.csv-logout-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+/* ── BREADCRUMB / PAGE HEADER ── */
+.csv-page-header {
+  background: #fff;
+  border-bottom: 1px solid var(--csv-border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.csv-page-header h1 {
+  font-family: 'Lato', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--csv-text);
+  letter-spacing: -0.01em;
+}
+.csv-page-header-tag {
+  font-size: 11px;
+  color: var(--csv-text-light);
+  background: var(--csv-green-light);
+  border: 1px solid var(--csv-green-mid);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── PAGE BODY ── */
+.page-body { padding: 20px; }
+
+/* ── TABLE COMPONENT ── */
+.csv-table-wrap {
+  background: #fff;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.csv-table-toolbar {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--csv-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #fafcfa;
+}
+.csv-table-toolbar-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--csv-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.csv-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 700px;
+}
+.csv-table-wrap th {
+  background: #f0f5f1;
+  color: var(--csv-text-light);
+  font-weight: 700;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--csv-border);
+  white-space: nowrap;
+}
+.csv-table-wrap td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #edf3ef;
+  color: var(--csv-text);
+  vertical-align: middle;
+}
+.csv-table-wrap tr:last-child td { border-bottom: none; }
+.csv-table-wrap tr:hover td { background: #f8fbf9; }
+.tbl-col { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ── BUTTONS ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--csv-green);
+  border: none;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: background 0.15s;
+  letter-spacing: 0.01em;
+}
+.btn-primary:hover { background: var(--csv-green-dark); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--csv-green);
+  background: var(--csv-green-light);
+  border: 1px solid var(--csv-green-mid);
+  padding: 6px 13px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.btn-secondary:hover { background: var(--csv-green-mid); }
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--csv-text-light);
+  background: #fff;
+  border: 1px solid var(--csv-border);
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.btn-outline:hover { background: var(--csv-bg); border-color: #b0c4b8; }
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--csv-red);
+  background: var(--csv-red-light);
+  border: 1px solid #f0bfbb;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.btn-danger:hover { background: #fde0de; }
+
+/* Legacy compat */
+.btn-aggiungi { @extend .btn-secondary; }
+.btn-modifica  { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; color: var(--csv-text-light); background: #fff; border: 1px solid var(--csv-border); padding: 5px 11px; border-radius: var(--radius); cursor: pointer; font-family: inherit; text-decoration: none; transition: all 0.15s; }
+.btn-modifica:hover { background: var(--csv-bg); }
+.btn-delete { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; color: var(--csv-red); background: var(--csv-red-light); border: 1px solid #f0bfbb; padding: 5px 11px; border-radius: var(--radius); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.btn-delete:hover { background: #fde0de; }
+.btn-save { font-size: 13px; font-weight: 700; padding: 9px 20px; border-radius: var(--radius); border: none; background: var(--csv-green); color: #fff; cursor: pointer; font-family: inherit; transition: background 0.15s; letter-spacing: 0.01em; }
+.btn-save:hover { background: var(--csv-green-dark); }
+.btn-cancel { font-size: 13px; padding: 9px 16px; border-radius: var(--radius); border: 1px solid var(--csv-border); background: #fff; color: var(--csv-text-light); cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.15s; }
+.btn-cancel:hover { background: var(--csv-bg); }
+
+.azioni-cell { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+/* ── CARDS ── */
+.card {
+  background: #fff;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.card-header {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--csv-border);
+  background: var(--csv-green);
+}
+.card-header h2, .card-header h3 {
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+  letter-spacing: 0.01em;
+}
+.card-header p { font-size: 12px; color: rgba(255,255,255,0.65); }
+.card-body { padding: 16px 18px; }
+.card-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--csv-border);
+  background: #fafcfa;
+}
+
+/* ── FORM FIELDS ── */
+.fg { margin-bottom: 14px; }
+.fg label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--csv-text-light);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.fg input, .fg select, .fg textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--csv-text);
+  outline: none;
+  font-family: inherit;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus {
+  border-color: var(--csv-green);
+  box-shadow: 0 0 0 3px rgba(26,122,60,0.1);
+}
+.fg input::placeholder { color: #b0bdb5; }
+
+/* ── SCHEDULE/CALENDAR ── */
+.sched { font-size: 11px; color: #8a9e90; max-width: 150px; white-space: normal; word-break: break-word; line-height: 1.6; }
+
+/* ── SITE LINK ── */
+.site-link { color: var(--csv-green); text-decoration: none; font-size: 12px; }
+.site-link:hover { text-decoration: underline; }
+
+/* ── STATUS BADGES ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+.badge-green { background: var(--csv-green-light); color: var(--csv-green-dark); border: 1px solid var(--csv-green-mid); }
+.badge-orange { background: var(--csv-orange-light); color: #9a5610; border: 1px solid #f0d4a0; }
+.badge-gray { background: #f0f2f0; color: #6a7a70; border: 1px solid #d4dcd6; }
+
+/* ── FOOTER STRIP ── */
+.csv-footer {
+  background: var(--csv-green-deep);
+  border-top: 3px solid var(--csv-orange);
+  padding: 16px 20px;
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.csv-footer-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+}
+.csv-footer-text strong { color: rgba(255,255,255,0.75); }
+
+@media (max-width: 640px) {
+  .csv-header { padding: 0 12px; }
+  .csv-header-brand { gap: 8px; }
+  .csv-brand-sub { display: none; }
+  .page-body { padding: 12px; }
+  .csv-header-user .csv-user-name { display: none; }
+}
+
 </style>
+<body>
 
-<!-- HEADER -->
-    <div class="admin-header">
-      <h1 class="admin-title">Benvenuto, {{ user }} </h1>
-      <div class="nav-btns">
-        <a class="nav-btn" href="/enti">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Enti
-        </a>
-        <a class="nav-btn" href="/grafici">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Grafici
-        </a>
-        <a class="nav-btn" href="/questionari">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Questionario
-        </a>
-        <form action="/login" method="get" style="margin:0;">
-          <button type="submit" class="logout-btn">Esci</button>
-        </form>
-      </div>
+<!-- TOPBAR -->
+<div class="csv-topbar">
+  <div class="csv-topbar-left">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+    <a href="https://www.csvterrestensi.it" target="_blank">csvterrestensi.it</a>
+    &nbsp;·&nbsp; Viale della Cittadella, 30 — 41123 Modena
+  </div>
+  <span>Portale PCTO — Area Amministratore</span>
+</div>
+
+<!-- MAIN HEADER -->
+<header class="csv-header">
+  <a class="csv-header-brand" href="/enti">
+    <div class="csv-logo-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
     </div>
+    <div class="csv-brand-text">
+      <div class="csv-brand-name">CSV Terre Estensi</div>
+      <div class="csv-brand-sub">Portale PCTO — Amministratore</div>
+    </div>
+  </a>
 
+  <nav class="csv-header-nav">
+    <a class="csv-nav-item" href="/enti">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Enti
+    </a>
+    <a class="csv-nav-item" href="/grafici">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Grafici
+    </a>
+    <a class="csv-nav-item active" href="/questionari">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Questionari
+    </a>
+  </nav>
 
+  <div class="csv-header-user">
+    <span class="csv-user-name">{{ user }}</span>
+    <form action="/login" method="get" style="margin:0;">
+      <button type="submit" class="csv-logout-btn">Esci</button>
+    </form>
+  </div>
+</header>
 
-</script>
+<!-- PAGE HEADER -->
+<div class="csv-page-header">
+  <h1>Questionari</h1>
+  <span class="csv-page-header-tag">Admin</span>
+</div>
+
+<div class="page-body">
+</div>
+
+<footer class="csv-footer">
+  <span class="csv-footer-text"><strong>CSV Terre Estensi ODV</strong> · Viale della Cittadella, 30 · 41123 Modena</span>
+  <a href="https://www.csvterrestensi.it" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:11px;">csvterrestensi.it →</a>
+</footer>
+
 </body>
 </html>
