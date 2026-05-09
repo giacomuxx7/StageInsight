@@ -4,6 +4,8 @@ import tornado.escape
 import json
 import pandas as pd
 
+
+
 demo_entities = [
     {"id":0,"name": "Caritas", "contact": "info@caritas.it", "phone": "02-1234567",
      "address": "Via Roma 1, Milano", "sector": "Sociale", "site": "caritas.it","posti_rimasti":5,
@@ -28,6 +30,8 @@ demo_entities = [
      "capacity": 6,"posti_rimasti":6, "tutor": "Giulia Verdi", "tutor_phone": "333-3333333",
      "schedule": {"lun": [], "mar": [{"start": "08:00", "end": "14:00"}], "mer": [{"start": "08:00", "end": "14:00"}], "gio": [], "ven": [{"start": "08:00", "end": "14:00"}], "sab": []}},
 ]
+
+id_to_name = {e["id"]: e["name"] for e in demo_entities} # crea un diz con solo id:nome
 demo_students = [
     {
         "username": "studente",
@@ -254,11 +258,16 @@ class DeleteEnteHandler(tornado.web.RequestHandler):
 #cerco prodotto in base al suo id e lo elimino dalla lista dei prodotti e ritorno alla pagina iniziale(/products)
     def post(self,id):
         id=int(id)
+
         for ente in demo_entities:
             if ente["id"] == id:
                 for student in demo_students:
                     if student["assigned_entity"] == id:
                         student["assigned_entity"] = None
+                    for scelta in student["choices"]:
+                        if scelta==id_to_name[id]:
+                            student["choices"].remove(scelta)
+
                 demo_entities.remove(ente)
         self.redirect("/enti")
 
