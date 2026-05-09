@@ -256,6 +256,9 @@ class DeleteEnteHandler(tornado.web.RequestHandler):
         id=int(id)
         for ente in demo_entities:
             if ente["id"] == id:
+                for student in demo_students:
+                    if student["assigned_entity"] == id:
+                        student["assigned_entity"] = None
                 demo_entities.remove(ente)
         self.redirect("/enti")
 
@@ -546,7 +549,7 @@ def make_app():
         (r"/enti/delete/([0-9]+)", DeleteEnteHandler),
         (r"/grafici", GraficiHandler),
         (r"/questionari", QuestionariAdminHandler)
-    ], cookie_secret="SUPER_SECRET_KEY")
+    ], cookie_secret="SUPER_SECRET_KEY", static_path=".")
 
 async def main(shutdown_event):
     app = make_app()
