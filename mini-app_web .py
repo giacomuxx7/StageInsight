@@ -303,28 +303,49 @@ class GraficiHandler(tornado.web.RequestHandler):
         # Uso get_argument perché il form è method="GET"
         id_filtro = self.get_argument("id_filtro", "")
         enti = demo_entities
-
+        anno_filtro = self.get_argument("anno_filtro", "")
+        anni = []
+        for risposta in data:
+            crono = risposta.get("Informazioni cronologiche","")
+            anno = crono[6:10]
+            if anno not in anni:
+                anni.append(anno)
         # Creo mappe di utilità
         id_to_name = {e["id"]: e["name"] for e in demo_entities}
         name_to_id = {e["name"]: str(e["id"]) for e in demo_entities}
 
-        # -------------------------
-        # 2. FILTRAGGIO DEI DATI
-        # -------------------------
-        if id_filtro and id_filtro in name_to_id:
-            target_id = name_to_id[id_filtro]
-            dati_filtrati = []
-            for risposta in data:
-                # Prendo l'ID dell'ente inserito nel modulo Google (convertito in stringa per sicurezza)
+        # =========================
+        # FILTRAGGIO DATI
+        # =========================
+        dati_filtrati = []
+        for risposta in data:
+            # ---- filtro ente ----
+            ente_ok = True
+            if id_filtro and id_filtro in name_to_id:
+                target_id = name_to_id[id_filtro]
                 ente_id_risposta = str(
-                    risposta.get("Inserisci il numero in riferimento all'ente in cui sei stato (guardare legenda)",
-                                 "")).strip()
+                    risposta.get(
+                        "Inserisci il numero in riferimento all'ente in cui sei stato (guardare legenda)",
+                        ""
+                    )
+                ).strip()
+                ente_ok = ente_id_risposta == target_id
 
-                # Se l'ID corrisponde a quello cercato, tengo la riga
-                if ente_id_risposta == target_id:
-                    dati_filtrati.append(risposta)
+            # ---- filtro anno ----
+            anno_ok = True
+            if anno_filtro:
+                crono = str(risposta.get("Informazioni cronologiche", ""))
+                if len(crono) >= 10:
+                    anno_risposta = crono[6:10]
+                else:
+                    anno_risposta = ""
+                anno_ok = anno_risposta == anno_filtro
+            # ---- aggiunta finale ----
+            if ente_ok and anno_ok:
+                dati_filtrati.append(risposta)
 
-            data = dati_filtrati  # Sostituisco il dataset completo con quello filtrato
+        # sostituisco i dati originali
+        data = dati_filtrati
 
         # -------------------------
         # TORTA (Ora usa 'data' che è eventualmente filtrato)
@@ -384,7 +405,9 @@ class GraficiHandler(tornado.web.RequestHandler):
             contesti=json.dumps(conteggio_contesti),
             id_to_name=id_to_name,
             enti=enti,
-            id_filtro=id_filtro
+            id_filtro=id_filtro,
+            anni=anni,
+            anno_filtro=anno_filtro,
         )
 
 class QuestionariAdminHandler(tornado.web.RequestHandler):

@@ -619,12 +619,25 @@ body {
     <div class="filter-card">
       <div class="filter-card-title">Filtra statistiche</div>
       <form action="/grafici" method="get">
+        <input type="hidden" name="anno_filtro" value="{{ anno_filtro }}">
         <label class="filter-label">Filtra per ente</label>
         <select name="id_filtro" onchange="this.form.submit()">
           <option value="">— Tutti gli enti —</option>
           {% for ente in enti %}
             <option value="{{ ente['name'] }}" {% if ente['name'] == id_filtro %}selected{% end %}>
               {{ ente['name'] }}
+            </option>
+          {% end %}
+        </select>
+      </form>
+      <form action="/grafici" method="get">
+          <input type="hidden" name="id_filtro" value="{{ id_filtro }}">
+        <label class="filter-label">Filtra per anno</label>
+        <select name="anno_filtro" onchange="this.form.submit()">
+          <option value="">— Tutti gli anni —</option>
+          {% for anno in anni %}
+            <option value="{{ anno }}" {% if anno == anno_filtro %}selected{% end %}>
+              {{ anno }}
             </option>
           {% end %}
         </select>
