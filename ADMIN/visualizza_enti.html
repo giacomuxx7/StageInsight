@@ -41,6 +41,8 @@ body {
   min-height: 100vh;
   font-size: 14px;
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── TOP BAR (sito ufficiale strip) ── */
@@ -62,7 +64,6 @@ body {
 /* ── MAIN HEADER ── */
 .csv-header {
   background: var(--csv-green);
-  border-bottom: 3px solid var(--csv-orange);
   padding: 0 20px;
   display: flex;
   align-items: stretch;
@@ -432,9 +433,8 @@ body {
 /* ── FOOTER STRIP ── */
 .csv-footer {
   background: var(--csv-green-deep);
-  border-top: 3px solid var(--csv-orange);
   padding: 16px 20px;
-  margin-top: 40px;
+  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -452,7 +452,7 @@ body {
   .csv-header { padding: 0 12px; }
   .csv-header-brand { gap: 8px; }
   .csv-brand-sub { display: none; }
-  .page-body { padding: 12px; }
+  .page-body { flex: 1; }
   .csv-header-user .csv-user-name { display: none; }
 }
 

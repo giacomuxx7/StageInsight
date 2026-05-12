@@ -40,6 +40,8 @@ body {
   min-height: 100vh;
   font-size: 14px;
   line-height: 1.5;
+    display: flex;
+  flex-direction: column;
 }
 
 /* ── TOP BAR (sito ufficiale strip) ── */
@@ -61,7 +63,6 @@ body {
 /* ── MAIN HEADER ── */
 .csv-header {
   background: var(--csv-green);
-  border-bottom: 3px solid var(--csv-orange);
   padding: 0 20px;
   display: flex;
   align-items: stretch;
@@ -373,7 +374,6 @@ body {
 .card-body { padding: 16px 18px; }
 .card-footer {
   padding: 12px 18px;
-  border-top: 1px solid var(--csv-border);
   background: #fafbfe;
 }
 
@@ -433,7 +433,7 @@ body {
   background: var(--csv-green-deep);
   border-top: 3px solid var(--csv-orange);
   padding: 16px 20px;
-  margin-top: 40px;
+  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -455,7 +455,7 @@ body {
   .csv-header-user .csv-user-name { display: none; }
 }
 
-  .page-body { padding: 20px; }
+  .page-body { flex: 1; }
   .two-col { display: grid; grid-template-columns: 250px 1fr; gap: 18px; align-items: start; }
   @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
 
