@@ -3,6 +3,44 @@ import tornado.web
 import tornado.escape
 import json
 import pandas as pd
+import time
+from collections import defaultdict
+
+# ── BRUTE FORCE PROTECTION ──────────────────────────────────────────────────
+# Tracciamento per username: { username -> [timestamp, ...] }
+_failed_attempts: dict = defaultdict(list)
+
+MAX_ATTEMPTS = 5      # tentativi falliti prima del blocco
+WINDOW_SEC   = 300    # finestra in cui contare i tentativi (5 min)
+
+# Durata blocco in secondi per ruolo
+LOCKOUT_BY_ROLE = {
+    "admin":    600,   # admin    → 10 minuti
+    "ref":      300,   # referente →  5 minuti
+}
+LOCKOUT_DEFAULT = 120  # studenti  →  2 minuti
+
+def _lockout_sec(username: str) -> int:
+    return LOCKOUT_BY_ROLE.get(username, LOCKOUT_DEFAULT)
+
+def _is_rate_limited(username: str) -> tuple[bool, int]:
+    """Restituisce (bloccato, secondi_rimasti)."""
+    now = time.time()
+    lockout = _lockout_sec(username)
+    attempts = _failed_attempts[username]
+    # rimuovi tentativi più vecchi del periodo di blocco
+    attempts[:] = [t for t in attempts if now - t < lockout]
+    recent = [t for t in attempts if now - t < WINDOW_SEC]
+    if len(recent) >= MAX_ATTEMPTS:
+        wait = int(lockout - (now - recent[0]))
+        return True, max(wait, 1)
+    return False, 0
+
+def _record_failure(username: str):
+    _failed_attempts[username].append(time.time())
+
+def _clear_failures(username: str):
+    _failed_attempts.pop(username, None)
 
 demo_entities = [
     {"id": 0, "name": "Caritas", "contact": "info@caritas.it", "phone": "02-1234567",
@@ -73,23 +111,46 @@ class LoginHandler(tornado.web.RequestHandler):
         self.render("login.html", error=None)
 
     def post(self):
-        username = self.get_body_argument("username")
+        username = self.get_body_argument("username").strip()
         password = self.get_body_argument("password")
 
+        # Controlla blocco sull'username prima ancora di verificare la password
+        blocked, wait = _is_rate_limited(username)
+        if blocked:
+            minuti = wait // 60
+            secondi = wait % 60
+            msg = f"Account bloccato. Riprova tra {minuti}m {secondi:02d}s."
+            self.render("login.html", error=msg)
+            return
+
         if username == "admin" and password == "":
+            _clear_failures(username)
             self.set_secure_cookie("user", username)
             self.redirect("/enti")
         elif username == "ari" and password == "":
+            _clear_failures(username)
             self.set_secure_cookie("user", username)
             self.redirect("/studente/scelta_enti")
         elif username == "studente" and password == "":
+            _clear_failures(username)
             self.set_secure_cookie("user", username)
             self.redirect("/studente/scelta_enti")
         elif username == "ref" and password == "":
+            _clear_failures(username)
             self.set_secure_cookie("user", username)
             self.redirect("/referente")
         else:
-            self.render("login.html", error="Sei scemo")
+            _record_failure(username)
+            blocked, wait = _is_rate_limited(username)
+            if blocked:
+                lockout_min = _lockout_sec(username) // 60
+                msg = f"Troppi tentativi. Account bloccato per {lockout_min} minuti."
+            else:
+                recent = [t for t in _failed_attempts[username]
+                          if time.time() - t < WINDOW_SEC]
+                rimasti = MAX_ATTEMPTS - len(recent)
+                msg = f"Credenziali errate. Tentativi rimasti: {rimasti}."
+            self.render("login.html", error=msg)
 
 
 class AddEnteHandler(tornado.web.RequestHandler):
