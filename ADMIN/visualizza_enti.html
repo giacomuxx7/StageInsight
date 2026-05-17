@@ -6,7 +6,6 @@
   <meta charset="UTF-8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
 <style>
     /* === CSV TERRE ESTENSI — SHARED STYLES === */
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Source+Sans+3:wght@400;600;700&display=swap');
@@ -214,6 +213,76 @@ body {
 /* ── PAGE BODY ── */
 .page-body { padding: 20px; }
 
+/* ── FILTERS BAR ── */
+.filters-bar {
+  background: #fff;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  box-shadow: var(--shadow-sm);
+}
+.filter-group {
+  flex: 1;
+  min-width: 180px;
+}
+.filter-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--csv-text-light);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.filter-group input,
+.filter-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--csv-text);
+  background: #fff;
+  transition: all 0.15s;
+}
+.filter-group input:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--csv-green);
+  box-shadow: 0 0 0 3px rgba(26,95,160,0.1);
+}
+.filter-group input::placeholder {
+  color: #b0bdb5;
+}
+.btn-reset {
+  background: var(--csv-green-light);
+  border: 1px solid var(--csv-green-mid);
+  color: var(--csv-green-dark);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-reset:hover {
+  background: var(--csv-green-mid);
+}
+.filter-stats {
+  font-size: 12px;
+  color: var(--csv-text-light);
+  padding: 8px 0;
+  white-space: nowrap;
+}
+
 /* ── TABLE COMPONENT ── */
 .csv-table-wrap {
   background: #fff;
@@ -242,7 +311,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  min-width: 700px;
+  min-width: 1000px;
 }
 .csv-table-wrap th {
   background: #eef3fb;
@@ -338,84 +407,14 @@ body {
 .btn-danger:hover { background: #fde0de; }
 
 /* Legacy compat */
-.btn-aggiungi { @extend .btn-secondary; }
 .btn-modifica  { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; color: var(--csv-text-light); background: #fff; border: 1px solid var(--csv-border); padding: 5px 11px; border-radius: var(--radius); cursor: pointer; font-family: inherit; text-decoration: none; transition: all 0.15s; }
 .btn-modifica:hover { background: var(--csv-bg); }
 .btn-delete { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; color: var(--csv-red); background: var(--csv-red-light); border: 1px solid #f0bfbb; padding: 5px 11px; border-radius: var(--radius); cursor: pointer; font-family: inherit; transition: all 0.15s; }
 .btn-delete:hover { background: #fde0de; }
-.btn-save { font-size: 13px; font-weight: 700; padding: 9px 20px; border-radius: var(--radius); border: none; background: var(--csv-green); color: #fff; cursor: pointer; font-family: inherit; transition: background 0.15s; letter-spacing: 0.01em; }
-.btn-save:hover { background: var(--csv-green-dark); }
-.btn-cancel { font-size: 13px; padding: 9px 16px; border-radius: var(--radius); border: 1px solid var(--csv-border); background: #fff; color: var(--csv-text-light); cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.15s; }
-.btn-cancel:hover { background: var(--csv-bg); }
 
 .azioni-cell { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 
-/* ── CARDS ── */
-.card {
-  background: #fff;
-  border: 1px solid var(--csv-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-.card-header {
-  padding: 14px 18px 12px;
-  border-bottom: 1px solid var(--csv-border);
-  background: var(--csv-green);
-}
-.card-header h2, .card-header h3 {
-  font-family: 'Lato', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 2px;
-  letter-spacing: 0.01em;
-}
-.card-header p { font-size: 12px; color: rgba(255,255,255,0.65); }
-.card-body { padding: 16px 18px; }
-.card-footer {
-  padding: 12px 18px;
-  border-top: 1px solid var(--csv-border);
-  background: #fafbfe;
-}
-
-/* ── FORM FIELDS ── */
-.fg { margin-bottom: 14px; }
-.fg label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--csv-text-light);
-  margin-bottom: 5px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.fg input, .fg select, .fg textarea {
-  width: 100%;
-  padding: 9px 12px;
-  border: 1px solid var(--csv-border);
-  border-radius: var(--radius);
-  font-size: 13px;
-  color: var(--csv-text);
-  outline: none;
-  font-family: inherit;
-  background: #fff;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.fg input:focus, .fg select:focus, .fg textarea:focus {
-  border-color: var(--csv-green);
-  box-shadow: 0 0 0 3px rgba(26,95,160,0.1);
-}
-.fg input::placeholder { color: #b0bdb5; }
-
-/* ── SCHEDULE/CALENDAR ── */
-.sched { font-size: 11px; color: #7a8aac; max-width: 150px; white-space: normal; word-break: break-word; line-height: 1.6; }
-
-/* ── SITE LINK ── */
-.site-link { color: var(--csv-green); text-decoration: none; font-size: 12px; }
-.site-link:hover { text-decoration: underline; }
-
-/* ── STATUS BADGES ── */
+/* ── BADGES ── */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -427,8 +426,14 @@ body {
   letter-spacing: 0.03em;
 }
 .badge-green { background: var(--csv-green-light); color: var(--csv-green-dark); border: 1px solid var(--csv-green-mid); }
-.badge-orange { background: var(--csv-orange-light); color: #9a5610; border: 1px solid #f0d4a0; }
 .badge-gray { background: #f0f2f0; color: #6a7a70; border: 1px solid #d4dcd6; }
+
+/* ── SITE LINK ── */
+.site-link { color: var(--csv-green); text-decoration: none; font-size: 12px; }
+.site-link:hover { text-decoration: underline; }
+
+/* ── SCHEDULE/CALENDAR ── */
+.sched { font-size: 11px; color: #7a8aac; max-width: 150px; white-space: normal; word-break: break-word; line-height: 1.6; }
 
 /* ── FOOTER STRIP ── */
 .csv-footer {
@@ -457,6 +462,7 @@ body {
 }
 
 </style>
+</head>
 <body>
 
 <!-- TOPBAR -->
@@ -514,6 +520,31 @@ body {
 <!-- PAGE CONTENT -->
 <div class="page-body">
   {% if enti %}
+    <!-- FILTRI -->
+    <div class="filters-bar">
+      <div class="filter-group">
+        <label>Filtra per nome</label>
+        <input type="text" id="filterNome" placeholder="Cerca ente..." autocomplete="off">
+      </div>
+      <div class="filter-group">
+        <label>Filtra per città</label>
+        <input type="text" id="filterCitta" placeholder="Es. Modena, Castelfranco Emilia..." autocomplete="off">
+      </div>
+      <div class="filter-group">
+        <label>Filtra per settore</label>
+        <select id="filterSettore">
+          <option value="">Tutti i settori</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>&nbsp;</label>
+        <button class="btn-reset" onclick="resetFiltri()">⟳ Reset filtri</button>
+      </div>
+      <div class="filter-stats" id="filterStats">
+        Mostrando <span id="visibleCount">0</span> su <span id="totalCount">0</span> enti
+      </div>
+    </div>
+
     <div class="csv-table-wrap">
       <div class="csv-table-toolbar">
         <span class="csv-table-toolbar-title">Elenco enti convenzionati</span>
@@ -523,31 +554,36 @@ body {
         </a>
       </div>
       <div class="tbl-col">
-        <table>
-          <tr>
-            <th>Nome ente</th><th>Contatto</th><th>Telefono</th><th>Indirizzo</th>
-            <th>Settore</th><th>Sito web</th><th>Capac.</th><th>Tutor</th>
-            <th>Tel. tutor</th><th>Orari</th><th>Azioni</th>
-          </tr>
-          {% for ente in enti %}
+        <table id="entiTable">
+          <thead>
             <tr>
-              <td><strong>{{ ente['name'] }}</strong></td>
-              <td>{{ ente['contact'] }}</td>
-              <td>{{ ente['phone'] }}</td>
-              <td>{{ ente['address'] }}</td>
-              <td>
+              <th>Nome ente</th><th>Contatto</th><th>Telefono</th><th>Indirizzo</th>
+              <th>Settore</th><th>Sito web</th><th>Capac.</th><th>Tutor</th>
+              <th>Tel. tutor</th><th>Orari</th><th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ente in enti %}
+            <tr>
+              <td class="nome-cell"><strong>{{ ente['name'] }}</strong></td>
+              <td class="contact-cell">{{ ente['contact'] }}</td>
+              <td class="phone-cell">{{ ente['phone'] }}</td>
+              <td class="address-cell">{{ ente['address'] }}</td>
+              <td class="settore-cell">
                 {% if ente['sector'] %}
                   <span class="badge badge-green">{{ ente['sector'] }}</span>
+                {% else %}
+                  <span class="badge badge-gray">—</span>
                 {% end %}
               </td>
-              <td>
+              <td class="site-cell">
                 {% if ente['site'] %}
                   <a class="site-link" href="https://{{ ente['site'] }}" target="_blank">{{ ente['site'] }}</a>
                 {% end %}
               </td>
-              <td>{{ ente['capacity'] }}</td>
-              <td>{{ ente['tutor'] }}</td>
-              <td>{{ ente['tutor_phone'] }}</td>
+              <td class="capacity-cell">{{ ente['capacity'] }}</td>
+              <td class="tutor-cell">{{ ente['tutor'] }}</td>
+              <td class="tutor-phone-cell">{{ ente['tutor_phone'] }}</td>
               <td class="sched">
                 {% set first = True %}
                 {% for day in ente['schedule'] %}
@@ -565,13 +601,14 @@ body {
               <td>
                 <div class="azioni-cell">
                   <a class="btn-modifica" href="/enti/edit/{{ ente['id'] }}">Modifica</a>
-                  <form action="/enti/delete/{{ ente['id'] }}" method="post" style="display:inline;">
-                    <input type="submit" value="Elimina" class="btn-delete">
+                  <form action="/enti/delete/{{ ente['id'] }}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare {{ ente['name'] }}?')">
+                    <button type="submit" class="btn-delete">Elimina</button>
                   </form>
                 </div>
               </td>
             </tr>
-          {% end %}
+            {% end %}
+          </tbody>
         </table>
       </div>
     </div>
@@ -589,6 +626,114 @@ body {
   <span class="csv-footer-text"><strong>CSV Terre Estensi ODV</strong> · Viale della Cittadella, 30 · 41123 Modena · 059 212003 · <a href="mailto:segreteria.mo@csvterrestensi.it" style="color:rgba(255,255,255,0.5);">segreteria.mo@csvterrestensi.it</a></span>
   <a href="https://www.csvterrestensi.it" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:11px;">csvterrestensi.it →</a>
 </footer>
+
+<script>
+  // Funzione per estrarre la città dall'indirizzo
+  function estraiCitta(indirizzo) {
+    if (!indirizzo) return '';
+    let parti = indirizzo.split(',');
+    if (parti.length > 1) {
+      return parti[parti.length - 1].trim().toLowerCase();
+    }
+    parti = indirizzo.trim().split(' ');
+    return parti[parti.length - 1].toLowerCase();
+  }
+
+  // Popola i settori dinamicamente dalla tabella
+  function popolaSettori() {
+    const settoriSet = new Set();
+    const rows = document.querySelectorAll('#entiTable tbody tr');
+
+    rows.forEach(row => {
+      const settoreCell = row.cells[4];
+      if (settoreCell) {
+        const badge = settoreCell.querySelector('.badge');
+        if (badge) {
+          let settore = badge.innerText.trim();
+          if (settore && settore !== '—') settoriSet.add(settore);
+        }
+      }
+    });
+
+    const filterSettore = document.getElementById('filterSettore');
+    if (filterSettore) {
+      while (filterSettore.options.length > 1) {
+        filterSettore.remove(1);
+      }
+
+      Array.from(settoriSet).sort().forEach(settore => {
+        const option = document.createElement('option');
+        option.value = settore;
+        option.textContent = settore;
+        filterSettore.appendChild(option);
+      });
+    }
+  }
+
+  const filterNome = document.getElementById('filterNome');
+  const filterCitta = document.getElementById('filterCitta');
+  const filterSettore = document.getElementById('filterSettore');
+  const rows = document.querySelectorAll('#entiTable tbody tr');
+  const visibleCountSpan = document.getElementById('visibleCount');
+  const totalCountSpan = document.getElementById('totalCount');
+
+  if (totalCountSpan) totalCountSpan.innerText = rows.length;
+
+  function aggiornaFiltri() {
+    const nomeFiltro = filterNome.value.toLowerCase().trim();
+    const cittaFiltro = filterCitta.value.toLowerCase().trim();
+    const settoreFiltro = filterSettore.value.toLowerCase().trim();
+
+    let visibili = 0;
+
+    rows.forEach(row => {
+      const nome = row.cells[0].innerText.trim().toLowerCase();
+      const indirizzo = row.cells[3].innerText.trim();
+
+      let settore = '';
+      const settoreCell = row.cells[4];
+      if (settoreCell) {
+        const badge = settoreCell.querySelector('.badge');
+        if (badge) {
+          settore = badge.innerText.trim().toLowerCase();
+        }
+      }
+
+      const citta = estraiCitta(indirizzo);
+
+      let matchNome = nomeFiltro === '' || nome.includes(nomeFiltro);
+      let matchCitta = cittaFiltro === '' || citta.includes(cittaFiltro);
+      let matchSettore = settoreFiltro === '' || settore.includes(settoreFiltro);
+
+      if (matchNome && matchCitta && matchSettore) {
+        row.style.display = '';
+        visibili++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    if (visibleCountSpan) visibleCountSpan.innerText = visibili;
+  }
+
+  function resetFiltri() {
+    filterNome.value = '';
+    filterCitta.value = '';
+    filterSettore.value = '';
+    aggiornaFiltri();
+  }
+
+  // Popola settori e inizializza (solo se ci sono righe)
+  if (rows.length > 0) {
+    popolaSettori();
+  }
+
+  if (filterNome) filterNome.addEventListener('input', aggiornaFiltri);
+  if (filterCitta) filterCitta.addEventListener('input', aggiornaFiltri);
+  if (filterSettore) filterSettore.addEventListener('change', aggiornaFiltri);
+
+  if (rows.length > 0) aggiornaFiltri();
+</script>
 
 </body>
 </html>

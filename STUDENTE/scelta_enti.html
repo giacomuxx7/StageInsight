@@ -214,6 +214,76 @@ body {
 /* ── PAGE BODY ── */
 .page-body { padding: 20px; }
 
+/* ── FILTERS BAR ── */
+.filters-bar {
+  background: #fff;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  box-shadow: var(--shadow-sm);
+}
+.filter-group {
+  flex: 1;
+  min-width: 180px;
+}
+.filter-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--csv-text-light);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.filter-group input,
+.filter-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--csv-border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--csv-text);
+  background: #fff;
+  transition: all 0.15s;
+}
+.filter-group input:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--csv-green);
+  box-shadow: 0 0 0 3px rgba(26,95,160,0.1);
+}
+.filter-group input::placeholder {
+  color: #b0bdb5;
+}
+.btn-reset {
+  background: var(--csv-green-light);
+  border: 1px solid var(--csv-green-mid);
+  color: var(--csv-green-dark);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-reset:hover {
+  background: var(--csv-green-mid);
+}
+.filter-stats {
+  font-size: 12px;
+  color: var(--csv-text-light);
+  padding: 8px 0;
+  white-space: nowrap;
+}
+
 /* ── TABLE COMPONENT ── */
 .csv-table-wrap {
   background: #fff;
@@ -580,6 +650,11 @@ body {
     border-color: var(--csv-green);
     box-shadow: 0 0 0 3px rgba(26,95,160,0.1);
   }
+
+  /* Animatione per righe filtrate */
+  .table-row-hidden {
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -675,7 +750,7 @@ body {
               <span class="pref-num">1</span>
               <span class="pref-label">Prima scelta</span>
             </div>
-            <select name="primo">
+            <select name="primo" id="primoSelect">
               <option value="">— Seleziona —</option>
               {% for ente in enti %}
                 <option value="{{ ente['name'] }}" {% if ente['name'] == primo %}selected{% end %}>{{ ente['name'] }}</option>
@@ -687,7 +762,7 @@ body {
               <span class="pref-num">2</span>
               <span class="pref-label">Seconda scelta</span>
             </div>
-            <select name="secondo">
+            <select name="secondo" id="secondoSelect">
               <option value="">— Seleziona —</option>
               {% for ente in enti %}
                 <option value="{{ ente['name'] }}" {% if ente['name'] == secondo %}selected{% end %}>{{ ente['name'] }}</option>
@@ -699,7 +774,7 @@ body {
               <span class="pref-num">3</span>
               <span class="pref-label">Terza scelta</span>
             </div>
-            <select name="terzo">
+            <select name="terzo" id="terzoSelect">
               <option value="">— Seleziona —</option>
               {% for ente in enti %}
                 <option value="{{ ente['name'] }}" {% if ente['name'] == terzo %}selected{% end %}>{{ ente['name'] }}</option>
@@ -714,73 +789,267 @@ body {
     </form>
   </div>
 
-  <!-- DESTRA: tabella enti -->
-  {% if enti %}
-    <div class="csv-table-wrap">
-      <div class="csv-table-toolbar">
-        <span class="csv-table-toolbar-title">Enti disponibili</span>
+  <!-- DESTRA: tabella enti con filtri -->
+  <div>
+    <!-- FILTRI -->
+    <div class="filters-bar">
+      <div class="filter-group">
+        <label>Filtra per nome</label>
+        <input type="text" id="filterNome" placeholder="Cerca ente..." autocomplete="off">
       </div>
-      <div class="tbl-col">
-        <table>
-          <tr>
-            <th>Nome ente</th><th>Contatto</th><th>Telefono</th><th>Indirizzo</th>
-            <th>Settore</th><th>Sito web</th><th>Capac.</th><th>Orari</th>
-          </tr>
-          {% for ente in enti %}
-            <tr>
-              <td><strong>{{ ente['name'] }}</strong></td>
-              <td>{{ ente['contact'] }}</td>
-              <td>{{ ente['phone'] }}</td>
-              <td>{{ ente['address'] }}</td>
-              <td>
-                {% if ente['sector'] %}
-                  <span class="badge badge-green">{{ ente['sector'] }}</span>
-                {% end %}
-              </td>
-              <td>
-                {% if ente['site'] %}
-                  <a class="site-link" href="https://{{ ente['site'] }}" target="_blank">{{ ente['site'] }}</a>
-                {% end %}
-              </td>
-              <td>{{ ente['capacity'] }}</td>
-              <td class="sched">
-                {% set first = True %}
-                {% for day in ente['schedule'] %}
-                  {% set intervals = ente['schedule'][day] %}
-                  {% if intervals %}
-                    {% if not first %} <br> {% end %}
-                    {{ day }}:
-                    {% for i in intervals %}
-                      {{ i["start"] }}-{{ i["end"] }}{% if i != intervals[-1] %}/{% end %}
-                    {% end %}
-                    {% set first = False %}
-                  {% end %}
-                {% end %}
-              </td>
-            </tr>
-          {% end %}
-        </table>
+      <div class="filter-group">
+        <label>Filtra per città</label>
+        <input type="text" id="filterCitta" placeholder="Es. Modena, Castelfranco Emilia..." autocomplete="off">
+      </div>
+      <div class="filter-group">
+        <label>Filtra per settore</label>
+        <select id="filterSettore">
+          <option value="">Tutti i settori</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>&nbsp;</label>
+        <button class="btn-reset" onclick="resetFiltri()">⟳ Reset filtri</button>
+      </div>
+      <div class="filter-stats" id="filterStats">
+        Mostrando <span id="visibleCount">0</span> su <span id="totalCount">0</span> enti
       </div>
     </div>
-  {% else %}
-    <p style="color:var(--csv-text-light); font-size:13px; padding:20px 0;">Nessun ente presente</p>
-  {% end %}
+
+    <!-- TABELLA ENTI -->
+    {% if enti %}
+      <div class="csv-table-wrap">
+        <div class="csv-table-toolbar">
+          <span class="csv-table-toolbar-title">Enti disponibili</span>
+        </div>
+        <div class="tbl-col">
+          <table id="entiTable">
+            <thead>
+              <tr>
+                <th>Nome ente</th><th>Contatto</th><th>Telefono</th><th>Indirizzo</th>
+                <th>Settore</th><th>Sito web</th><th>Capac.</th><th>Orari</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ente in enti %}
+              <tr>
+                <td class="nome-cell"><strong>{{ ente['name'] }}</strong></td>
+                <td class="contact-cell">{{ ente['contact'] }}</td>
+                <td class="phone-cell">{{ ente['phone'] }}</td>
+                <td class="address-cell">{{ ente['address'] }}</td>
+                <td class="settore-cell">
+                  {% if ente['sector'] %}
+                    <span class="badge badge-green">{{ ente['sector'] }}</span>
+                  {% end %}
+                </td>
+                <td>
+                  {% if ente['site'] %}
+                    <a class="site-link" href="https://{{ ente['site'] }}" target="_blank">{{ ente['site'] }}</a>
+                  {% end %}
+                </td>
+                <td>{{ ente['capacity'] }}</td>
+                <td class="sched">
+                  {% set first = True %}
+                  {% for day in ente['schedule'] %}
+                    {% set intervals = ente['schedule'][day] %}
+                    {% if intervals %}
+                      {% if not first %} <br> {% end %}
+                      {{ day }}:
+                      {% for i in intervals %}
+                        {{ i["start"] }}-{{ i["end"] }}{% if i != intervals[-1] %}/{% end %}
+                      {% end %}
+                      {% set first = False %}
+                    {% end %}
+                  {% end %}
+                </td>
+              </tr>
+              {% end %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% else %}
+      <p style="color:var(--csv-text-light); font-size:13px; padding:20px 0;">Nessun ente presente</p>
+    {% end %}
+  </div>
 </div>
 
 <footer class="csv-footer">
   <span class="csv-footer-text"><strong>CSV Terre Estensi ODV</strong> · Viale della Cittadella, 30 · 41123 Modena</span>
   <a href="https://www.csvterrestensi.it" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:11px;">csvterrestensi.it →</a>
 </footer>
-<script>
-  const selects = ['primo', 'secondo', 'terzo'].map(n => document.querySelector(`select[name="${n}"]`));
 
+<script>
+  // Funzione per estrarre la città dall'indirizzo
+  function estraiCitta(indirizzo) {
+    if (!indirizzo) return '';
+    // Prova a prendere dopo l'ultima virgola
+    let parti = indirizzo.split(',');
+    if (parti.length > 1) {
+      return parti[parti.length - 1].trim().toLowerCase();
+    }
+    // Altrimenti prendi l'ultima parola
+    parti = indirizzo.trim().split(' ');
+    return parti[parti.length - 1].toLowerCase();
+  }
+
+  // Popola i settori dinamicamente dalla tabella
+  function popolaSettori() {
+    const settoriSet = new Set();
+    const rows = document.querySelectorAll('#entiTable tbody tr');
+
+    rows.forEach(row => {
+      const settoreCell = row.cells[4];
+      if (settoreCell) {
+        const badge = settoreCell.querySelector('.badge');
+        if (badge) {
+          const settore = badge.innerText.trim();
+          if (settore) settoriSet.add(settore);
+        }
+      }
+    });
+
+    const filterSettore = document.getElementById('filterSettore');
+    if (filterSettore) {
+      // Rimuovi opzioni esistenti tranne la prima
+      while (filterSettore.options.length > 1) {
+        filterSettore.remove(1);
+      }
+
+      // Aggiungi i settori unici in ordine alfabetico
+      Array.from(settoriSet).sort().forEach(settore => {
+        const option = document.createElement('option');
+        option.value = settore;
+        option.textContent = settore;
+        filterSettore.appendChild(option);
+      });
+    }
+  }
+
+  // Ottieni tutti i riferimenti
+  const filterNome = document.getElementById('filterNome');
+  const filterCitta = document.getElementById('filterCitta');
+  const filterSettore = document.getElementById('filterSettore');
+  const rows = document.querySelectorAll('#entiTable tbody tr');
+  const visibleCountSpan = document.getElementById('visibleCount');
+  const totalCountSpan = document.getElementById('totalCount');
+
+  // Imposta il conteggio totale
+  if (totalCountSpan) totalCountSpan.innerText = rows.length;
+
+  // Funzione per aggiornare i filtri
+  function aggiornaFiltri() {
+    const nomeFiltro = filterNome.value.toLowerCase().trim();
+    const cittaFiltro = filterCitta.value.toLowerCase().trim();
+    const settoreFiltro = filterSettore.value.toLowerCase().trim();
+
+    let visibili = 0;
+
+    rows.forEach(row => {
+      // Ottieni i dati dalle celle
+      const nome = row.cells[0].innerText.trim().toLowerCase();
+      const indirizzo = row.cells[3].innerText.trim();
+
+      // Ottieni il settore dal badge
+      let settore = '';
+      const settoreCell = row.cells[4];
+      if (settoreCell) {
+        const badge = settoreCell.querySelector('.badge');
+        if (badge) {
+          settore = badge.innerText.trim().toLowerCase();
+        }
+      }
+
+      // Estrai la città dall'indirizzo
+      const citta = estraiCitta(indirizzo);
+
+      // Applica i filtri (tutti case-insensitive)
+      let matchNome = nomeFiltro === '' || nome.includes(nomeFiltro);
+      let matchCitta = cittaFiltro === '' || citta.includes(cittaFiltro);
+      let matchSettore = settoreFiltro === '' || settore.includes(settoreFiltro);
+
+      if (matchNome && matchCitta && matchSettore) {
+        row.style.display = '';
+        visibili++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    // Aggiorna il contatore
+    if (visibleCountSpan) visibleCountSpan.innerText = visibili;
+
+    // Aggiorna anche i dropdown delle preferenze
+    aggiornaSelectsConFiltro();
+  }
+
+  // Funzione per aggiornare i select delle preferenze
+  function aggiornaSelectsConFiltro() {
+    const selects = ['primoSelect', 'secondoSelect', 'terzoSelect'];
+    const entiVisibili = [];
+
+    // Raccogli i nomi degli enti visibili
+    rows.forEach(row => {
+      if (row.style.display !== 'none') {
+        const nome = row.cells[0].innerText.trim();
+        entiVisibili.push(nome);
+      }
+    });
+
+    // Aggiorna ogni select
+    selects.forEach(selectId => {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+
+      const valoreCorrente = select.value;
+
+      // Rimuovi tutte le opzioni tranne il placeholder
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Aggiungi solo gli enti visibili
+      entiVisibili.forEach(nome => {
+        const option = document.createElement('option');
+        option.value = nome;
+        option.textContent = nome;
+        select.appendChild(option);
+      });
+
+      // Ripristina il valore se ancora presente
+      if (entiVisibili.includes(valoreCorrente)) {
+        select.value = valoreCorrente;
+      } else {
+        select.value = '';
+      }
+    });
+
+    // Riapplica la logica di esclusione duplicati
+    aggiornaOpzioni();
+  }
+
+  // Funzione per resettare tutti i filtri
+  function resetFiltri() {
+    filterNome.value = '';
+    filterCitta.value = '';
+    filterSettore.value = '';
+    aggiornaFiltri();
+  }
+
+  // Logica per evitare scelte duplicate
   function aggiornaOpzioni() {
-    const scelte = selects.map(s => s.value);
+    const selects = [
+      document.getElementById('primoSelect'),
+      document.getElementById('secondoSelect'),
+      document.getElementById('terzoSelect')
+    ].filter(s => s !== null);
+
+    const scelte = selects.map(s => s ? s.value : '');
 
     selects.forEach((sel, i) => {
-      const valoreCorrente = sel.value;
+      if (!sel) return;
       Array.from(sel.options).forEach(opt => {
-        if (opt.value === '') return; // lascia sempre il placeholder
+        if (opt.value === '') return;
         const usataDaAltri = scelte.some((v, j) => j !== i && v === opt.value);
         opt.disabled = usataDaAltri;
         opt.style.color = usataDaAltri ? '#aaa' : '';
@@ -788,8 +1057,25 @@ body {
     });
   }
 
-  selects.forEach(sel => sel.addEventListener('change', aggiornaOpzioni));
-  aggiornaOpzioni(); // esegui subito al caricamento
+  // Popola i settori dinamicamente
+  popolaSettori();
+
+  // Event listeners
+  if (filterNome) filterNome.addEventListener('input', aggiornaFiltri);
+  if (filterCitta) filterCitta.addEventListener('input', aggiornaFiltri);
+  if (filterSettore) filterSettore.addEventListener('change', aggiornaFiltri);
+
+  // Event listener per i select delle preferenze
+  const selectElements = ['primoSelect', 'secondoSelect', 'terzoSelect'].map(id => document.getElementById(id));
+  selectElements.forEach(sel => {
+    if (sel) sel.addEventListener('change', aggiornaOpzioni);
+  });
+
+  // Inizializza i filtri
+  if (rows.length > 0) {
+    aggiornaFiltri();
+  }
+  aggiornaOpzioni();
 </script>
 </body>
 </html>
