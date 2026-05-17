@@ -59,7 +59,12 @@ body {
 .csv-topbar a:hover { color: #fff; }
 .csv-topbar-left { display: flex; align-items: center; gap: 6px; }
 .csv-topbar-left svg { width: 12px; height: 12px; flex-shrink: 0; }
-
+ .error-box {
+    margin-top: 14px; padding: 10px 14px;
+    background: #fef5f5; border: 1px solid #f0bfbb;
+    border-left: 3px solid #c0392b; border-radius: 6px;
+    font-size: 13px; color: #c0392b;
+  }
 /* ── MAIN HEADER ── */
 .csv-header {
   background: var(--csv-green);
@@ -73,7 +78,103 @@ body {
   z-index: 200;
   min-height: 58px;
 }
+/* NOTIFICA FLOTTANTE IN BASSO A DESTRA */
+.notification-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 280px;
+    max-width: 400px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    animation: slideInRight 0.3s ease-out;
+    overflow: hidden;
+}
 
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border-left: 4px solid #c0392b;
+    background: #fff;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    font-size: 20px;
+}
+
+.notification-message {
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #1a1f2e;
+}
+
+.notification-message strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #c0392b;
+    font-size: 14px;
+}
+
+.notification-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #999;
+    padding: 0 4px;
+    transition: color 0.2s;
+}
+
+.notification-close:hover {
+    color: #333;
+}
+
+/* Tipo success (verde) */
+.notification-toast.success .notification-content {
+    border-left-color: #27ae60;
+}
+.notification-toast.success .notification-message strong {
+    color: #27ae60;
+}
+
+/* Tipo info (blu) */
+.notification-toast.info .notification-content {
+    border-left-color: #3498db;
+}
+.notification-toast.info .notification-message strong {
+    color: #3498db;
+}
+
+/* Auto-scomparsa */
+.notification-toast.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(100px);
+        visibility: hidden;
+    }
+}
 .csv-header-brand {
   display: flex;
   align-items: center;
@@ -588,10 +689,10 @@ body {
   /* scrolla orizzontalmente su schermi piccoli */
   .tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .page-body { padding: 20px; }
+
 </style>
 </head>
 <body>
-
 <!-- TOPBAR -->
 <div class="csv-topbar">
   <div class="csv-topbar-left">
@@ -635,72 +736,166 @@ body {
 
 <!-- PAGE CONTENT -->
 <div class="page-body">
-  {% if studenti_fermi %}
-    <div class="tbl-wrap">
-      <div class="tbl-scroll">
-      <table>
-        <tr>
-          <th>Studente</th>
-          <th>Scuola</th>
-          <th>Preferenze</th>
-          <th>Ente assegnato</th>
-          <th>Assegna</th>
-        </tr>
-        {% for studente in studenti_fermi %}
-          <tr>
-            <td>{{ studente['username'] }}</td>
-            <td><span class="school-badge">{{ studente['school'] }}</span></td>
-            <td>
-              <div class="choices-list">
-                {% set i = 1 %}
-                {% for scelta in studente['choices'] %}
-                  <span class="choice-pill">
-                    <span class="choice-num">{{ i }}</span>
-                    {{ scelta }}
-                  </span>
-                  {% set i = i + 1 %}
+  <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+    {% if studenti_fermi %}
+      <!-- Prima tabella: studenti fermi -->
+      <div style="flex: 1; min-width: 260px;">
+        <div class="tbl-wrap">
+          <div class="tbl-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Studente</th>
+                  <th>Scuola</th>
+                  <th>Preferenze</th>
+                  <th>Ente assegnato</th>
+                  <th>Assegna</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for studente in studenti_fermi %}
+                <tr>
+                  <td>{{ studente['username'] }}</td>
+                  <td><span class="school-badge">{{ studente['school'] }}</span></td>
+                  <td>
+                    <div class="choices-list">
+                      {% set i = 1 %}
+                      {% for scelta in studente['choices'] %}
+                        <span class="choice-pill">
+                          <span class="choice-num">{{ i }}</span>
+                          {{ scelta }}
+                        </span>
+                        {% set i = i + 1 %}
+                      {% end %}
+                    </div>
+                  </td>
+                  <td>
+                    {% if studente['assigned_entity'] is not None %}
+                      <span class="assigned-yes">
+                        <span class="dot dot-green"></span>
+                        {{ id_to_name[studente['assigned_entity']] }}
+                      </span>
+                    {% else %}
+                      <span class="assigned-no">
+                        <span class="dot dot-gray"></span>
+                        Non assegnato
+                      </span>
+                    {% end %}
+                  </td>
+                  <td class="assign-cell">
+                    <form method="post" action="/referente/assegna/{{ studente['username'] }}">
+                      <select name="ente_id">
+                        <option value="">— Seleziona —</option>
+                        {% for ente in enti %}
+                          <option value="{{ ente['id'] }}" {% if studente['assigned_entity'] == ente['id'] %}selected{% end %}>
+                            {{ ente['name'] }}
+                          </option>
+                        {% end %}
+                      </select>
+                      <input type="submit" value="Salva" class="btn-salva">
+                    </form>
+                  </td>
+                </tr>
                 {% end %}
-              </div>
-            </td>
-            <td>
-              {% if studente['assigned_entity'] is not None %}
-                <span class="assigned-yes">
-                  <span class="dot dot-green"></span>
-                  {{ id_to_name[studente['assigned_entity']] }}
-                </span>
-              {% else %}
-                <span class="assigned-no">
-                  <span class="dot dot-gray"></span>
-                  Non assegnato
-                </span>
-              {% end %}
-            </td>
-            <td class="assign-cell">
-              <form method="post" action="/referente/assegna/{{ studente['username'] }}">
-                <select name="ente_id">
-                  <option value="">— Seleziona —</option>
-                  {% for ente in enti %}
-                    <option value="{{ ente['id'] }}" {% if studente['assigned_entity'] == ente['id'] %}selected{% end %}>
-                    {{ ente['name'] }}
-                  {% end %}
-                </select>
-                <input type="submit" value="Salva" class="btn-salva">
-              </form>
-            </td>
-          </tr>
-        {% end %}
-      </table>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </div>
-  {% else %}
-    <p style="color:#888; font-size:14px;">Nessuno studente presente</p>
-  {% end %}
-</div>
+
+      <!-- Seconda tabella: enti e posti liberi -->
+      <div style="flex: 1; min-width: 260px;">
+        <div class="tbl-wrap">
+          <div class="tbl-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ente</th>
+                  <th>Posti Liberi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ente in enti %}
+                <tr>
+                  <td>{{ ente['name'] }}</td>
+                  <td>{{ ente['posti_rimasti'] }}</td>
+                </tr>
+                {% end %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <p style="color:#888; font-size:14px;">Nessuno studente presente</p>
+    {% end %}
+  </div> <!-- CHIUDE IL FLEX CONTAINER -->
+</div> <!-- CHIUDE page-body -->
+
+
+
 
 <footer class="csv-footer">
   <span class="csv-footer-text"><strong>CSV Terre Estensi ODV</strong> · Viale della Cittadella, 30 · 41123 Modena · 059 212003</span>
   <a href="https://www.csvterrestensi.it" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:11px;">csvterrestensi.it →</a>
 </footer>
+<!-- NOTIFICA FLOTTANTE (NASCOSTA DI DEFAULT) -->
+<div id="notificationToast" class="notification-toast" style="display: none;">
+    <div class="notification-content">
+        <div class="notification-icon">⚠️</div>
+        <div class="notification-message">
+            <strong>Errore</strong>
+            <span id="notificationText"></span>
+        </div>
+        <button class="notification-close" onclick="closeNotification()">✕</button>
+    </div>
+</div>
 
+<script>
+    // Funzione per mostrare la notifica
+    function showNotification(message, type = 'error') {
+        const toast = document.getElementById('notificationToast');
+        const textSpan = document.getElementById('notificationText');
+        const iconDiv = toast.querySelector('.notification-icon');
+
+        // Imposta il messaggio
+        textSpan.innerText = message;
+
+        // Imposta l'icona in base al tipo
+        if (type === 'success') {
+            iconDiv.innerHTML = '✅';
+            toast.className = 'notification-toast success';
+        } else if (type === 'info') {
+            iconDiv.innerHTML = 'ℹ️';
+            toast.className = 'notification-toast info';
+        } else {
+            iconDiv.innerHTML = '⚠️';
+            toast.className = 'notification-toast';
+        }
+
+        // Mostra la notifica
+        toast.style.display = 'block';
+
+        // Auto-scomparsa dopo 5 secondi
+        setTimeout(() => {
+            closeNotification();
+        }, 5000);
+    }
+
+    // Funzione per chiudere la notifica
+    function closeNotification() {
+        const toast = document.getElementById('notificationToast');
+        toast.classList.add('fade-out');
+        setTimeout(() => {
+            toast.style.display = 'none';
+            toast.classList.remove('fade-out');
+        }, 300);
+    }
+
+    // Mostra errore se presente (da Python)
+    {% if error %}
+    showNotification('{{ error }}', 'error');
+    {% end %}
+</script>
 </body>
 </html>
