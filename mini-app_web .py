@@ -7,6 +7,7 @@ import time
 import random
 import re
 from collections import defaultdict
+import yagmail
 
 # ── BRUTE FORCE PROTECTION ──────────────────────────────────────────────────
 # Tracciamento per username: { username -> [timestamp, ...] }
@@ -89,7 +90,6 @@ demo_students = [
         "password": "",
         "school": "Fermi",
         "choices": ["Croce Rossa"],
-        "entities": None,
         "assigned_entity": None
     },
     {
@@ -97,7 +97,6 @@ demo_students = [
         "password": "",
         "school": "Fermi",
         "choices": ["Caritas"],
-        "entities": None,
         "assigned_entity": None
     },
     {
@@ -105,7 +104,6 @@ demo_students = [
         "password": "",
         "school": "Fermi",
         "choices": ["Legambiente"],
-        "entities": None,
         "assigned_entity": None
     },
 ]
@@ -135,24 +133,29 @@ class LoginHandler(tornado.web.RequestHandler):
             msg = f"Account bloccato. Riprova tra {minuti}m {secondi:02d}s."
             self.render("login.html", error=msg)
             return
-
+        stato=0
         if username == "admin" and password == "":
+            stato=1
             _clear_failures(username)
             self.set_secure_cookie("user", username)
             self.redirect("/enti")
-        elif username == "ari" and password == "":
-            _clear_failures(username)
-            self.set_secure_cookie("user", username)
-            self.redirect("/studente/scelta_enti")
-        elif username == "studente" and password == "":
-            _clear_failures(username)
-            self.set_secure_cookie("user", username)
-            self.redirect("/studente/scelta_enti")
-        elif username == "ref" and password == "":
-            _clear_failures(username)
-            self.set_secure_cookie("user", username)
-            self.redirect("/referente")
-        else:
+        for referente in demo_referent:
+            if username == referente["username"] and password == referente["password"]:
+                stato=1
+                _clear_failures(username)
+                self.set_secure_cookie("user", username)
+                self.redirect("/referente")
+                break
+
+        for student in demo_students:
+            if username == student["username"] and password == student["password"]:
+                stato=1
+                _clear_failures(username)
+                self.set_secure_cookie("user", username)
+                self.redirect("/studente/scelta_enti")
+                break
+
+        if stato == 0:
             _record_failure(username)
             blocked, wait = _is_rate_limited(username)
             if blocked:
@@ -879,7 +882,18 @@ class CreaStudenteHandler(tornado.web.RequestHandler):
             return
 
         mail = nome_cognome + "@" + parte_finale
-        demo_students.append({"username": mail, "password": genera_password(), "school": scuola, "choices": [], "entities": None, "assigned_entity": None})
+        password=genera_password()
+        yag = yagmail.SMTP('testprovaprogetto@gmail.com', 'oqot ulvs holx sojg')
+        yag.send(
+            to=mail,
+            subject="Ecco le credenziali",
+            contents="Username: " + mail + "\nPassword: " + password,
+        )
+        print(mail)
+        print(password)
+
+        demo_students.append({"username": mail, "password": password, "school": scuola, "choices": [], "entities": None, "assigned_entity": None})
+        print(demo_students)
         self.redirect("/referente")
 
 
