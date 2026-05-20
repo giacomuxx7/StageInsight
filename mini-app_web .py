@@ -5,6 +5,7 @@ import json
 import pandas as pd
 import time
 import random
+import re
 from collections import defaultdict
 
 # ── BRUTE FORCE PROTECTION ──────────────────────────────────────────────────
@@ -49,9 +50,8 @@ simboli = ["!", "@", "#", "$", "%", "&", "*", "?"]
 
 def genera_password():
     parola = random.choice(parole)
-    numero = random.randint(0, 99)  # 2 cifre
+    numero = random.randint(0, 99)
     simbolo = random.choice(simboli)
-
     password = f"{parola}{numero}{simbolo}"
     return password
 
@@ -168,47 +168,84 @@ class LoginHandler(tornado.web.RequestHandler):
 
 class AddEnteHandler(tornado.web.RequestHandler):
     def get(self):
+        # FIX 2: controllo ruolo admin
+        user = self.get_secure_cookie("user")
+        if not user or user.decode() != "admin":
+            self.set_status(403)
+            self.finish("Accesso negato")
+            return
         #pubblico la pagina add_edit.html
         self.render("ADMIN/add_edit.html", name=None)
 
     def post(self):
-        #prendo il valore delle variabili del nuovo prodotto, creo il nuovo prodotto, e ritorno alla pagina iniziale(/products)
-        name = self.get_body_argument("name")
+        # controllo ruolo admin
+        user = self.get_secure_cookie("user")
+        if not user or user.decode() != "admin":
+            self.set_status(403)
+            self.finish("Accesso negato")
+            return
+
+        # validazione campi name e capacity
+        errori = []
+        name = self.get_body_argument("name", "").strip()
+        capacity = self.get_body_argument("capacity", "").strip()
+
+        if not name:
+            errori.append("Il nome dell'ente è obbligatorio")
+        elif len(name) > 80:
+            errori.append("Il nome non può superare 80 caratteri")
+        elif any(e["name"].lower() == name.lower() for e in demo_entities):
+            errori.append(f"Esiste già un ente con il nome '{name}'")
+
+        try:
+            capacity = int(capacity)
+            if capacity < 1 or capacity > 50:
+                raise ValueError
+        except ValueError:
+            errori.append("La capacità deve essere un numero intero tra 1 e 50")
+
+        if errori:
+            self.render("ADMIN/add_edit.html", errori=errori, name=name)
+            return
+
         contact = self.get_body_argument("contact")
         phone = self.get_body_argument("phone")
         address = self.get_body_argument("address")
         sector = self.get_body_argument("sector")
         site = self.get_body_argument("site")
-        capacity = self.get_body_argument("capacity")
         tutor = self.get_body_argument("tutor")
         tutor_phone = self.get_body_argument("tutor_phone")
 
+        #  parse_day con validazione
         def parse_day(text):
             result = []
-
             if not text.strip():
                 return result
-
-            intervals = text.split(",")
-
-            for interval in intervals:
-                start, end = interval.strip().split("-")
-                result.append({
-                    "start": start.strip(),
-                    "end": end.strip()
-                })
-
+            for interval in text.split(","):
+                parts = interval.strip().split("-")
+                if len(parts) != 2:
+                    raise ValueError(f"Formato non valido: '{interval}'. Usa HH:MM-HH:MM")
+                start, end = parts[0].strip(), parts[1].strip()
+                if not re.match(r'^\d{2}:\d{2}$', start) or not re.match(r'^\d{2}:\d{2}$', end):
+                    raise ValueError(f"Orario non valido: '{interval}'. Usa HH:MM")
+                if start >= end:
+                    raise ValueError(f"L'inizio deve essere prima della fine: '{interval}'")
+                result.append({"start": start, "end": end})
             return result
 
-        schedule = {
-            "lun": parse_day(self.get_argument("lunedi")),
-            "mar": parse_day(self.get_argument("martedi")),
-            "mer": parse_day(self.get_argument("mercoledi")),
-            "gio": parse_day(self.get_argument("giovedi")),
-            "ven": parse_day(self.get_argument("venerdi")),
-            "sab": parse_day(self.get_argument("sabato")),
-            "dom": parse_day(self.get_argument("domenica")),
-        }
+        try:
+            schedule = {
+                "lun": parse_day(self.get_argument("lunedi")),
+                "mar": parse_day(self.get_argument("martedi")),
+                "mer": parse_day(self.get_argument("mercoledi")),
+                "gio": parse_day(self.get_argument("giovedi")),
+                "ven": parse_day(self.get_argument("venerdi")),
+                "sab": parse_day(self.get_argument("sabato")),
+                "dom": parse_day(self.get_argument("domenica")),
+            }
+        except ValueError as ex:
+            self.render("ADMIN/add_edit.html", errori=[str(ex)], name=name)
+            return
 
         #valori base alle variabili
         id = 1
@@ -223,7 +260,7 @@ class AddEnteHandler(tornado.web.RequestHandler):
             else:
                 break
         new_ente = {"id": id, "name": name, "contact": contact, "phone": phone, "address": address, "sector": sector,
-                    "site": site, "capacity": capacity, "tutor": tutor, "tutor_phone": tutor_phone,
+                    "site": site, "capacity": capacity, "posti_rimasti": capacity, "tutor": tutor, "tutor_phone": tutor_phone,
                     "schedule": schedule}
         demo_entities.append(new_ente)
         self.redirect("/enti")
@@ -231,6 +268,12 @@ class AddEnteHandler(tornado.web.RequestHandler):
 
 class EditEnteHandler(tornado.web.RequestHandler):
     def get(self, id):
+        #  controllo ruolo admin
+        user = self.get_secure_cookie("user")
+        if not user or user.decode() != "admin":
+            self.set_status(403)
+            self.finish("Accesso negato")
+            return
         #contorllo se id del prodotto che voglio modificare c'è nella lista e prendo le variabili del prodotto da modificare
         id = int(id)
         print(id)
@@ -282,43 +325,74 @@ class EditEnteHandler(tornado.web.RequestHandler):
                     schedule=schedule)
 
     def post(self, id):
-        #prendo i valori delle variabili modificate e cercando dall'id del prodotto, sostituisco i valori di ogni variabile e ritorno alla pagina iniziale(/products)
-        name = self.get_body_argument("name")
+        # controllo ruolo admin
+        user = self.get_secure_cookie("user")
+        if not user or user.decode() != "admin":
+            self.set_status(403)
+            self.finish("Accesso negato")
+            return
+
+        # validazione campi name e capacity
+        errori = []
+        name = self.get_body_argument("name", "").strip()
+        capacity = self.get_body_argument("capacity", "").strip()
+
+        if not name:
+            errori.append("Il nome dell'ente è obbligatorio")
+        elif len(name) > 80:
+            errori.append("Il nome non può superare 80 caratteri")
+        elif any(e["name"].lower() == name.lower() and e["id"] != int(id) for e in demo_entities):
+            errori.append(f"Esiste già un ente con il nome '{name}'")
+
+        try:
+            capacity = int(capacity)
+            if capacity < 1 or capacity > 50:
+                raise ValueError
+        except ValueError:
+            errori.append("La capacità deve essere un numero intero tra 1 e 50")
+
+        if errori:
+            self.render("ADMIN/add_edit.html", errori=errori, name=name)
+            return
+
         contact = self.get_body_argument("contact")
         phone = self.get_body_argument("phone")
         address = self.get_body_argument("address")
         sector = self.get_body_argument("sector")
         site = self.get_body_argument("site")
-        capacity = self.get_body_argument("capacity")
         tutor = self.get_body_argument("tutor")
         tutor_phone = self.get_body_argument("tutor_phone")
 
+        # parse_day con validazione
         def parse_day(text):
             result = []
-
             if not text.strip():
                 return result
-
-            intervals = text.split(",")
-
-            for interval in intervals:
-                start, end = interval.strip().split("-")
-                result.append({
-                    "start": start.strip(),
-                    "end": end.strip()
-                })
-
+            for interval in text.split(","):
+                parts = interval.strip().split("-")
+                if len(parts) != 2:
+                    raise ValueError(f"Formato non valido: '{interval}'. Usa HH:MM-HH:MM")
+                start, end = parts[0].strip(), parts[1].strip()
+                if not re.match(r'^\d{2}:\d{2}$', start) or not re.match(r'^\d{2}:\d{2}$', end):
+                    raise ValueError(f"Orario non valido: '{interval}'. Usa HH:MM")
+                if start >= end:
+                    raise ValueError(f"L'inizio deve essere prima della fine: '{interval}'")
+                result.append({"start": start, "end": end})
             return result
 
-        schedule = {
-            "lun": parse_day(self.get_argument("lunedi")),
-            "mar": parse_day(self.get_argument("martedi")),
-            "mer": parse_day(self.get_argument("mercoledi")),
-            "gio": parse_day(self.get_argument("giovedi")),
-            "ven": parse_day(self.get_argument("venerdi")),
-            "sab": parse_day(self.get_argument("sabato")),
-            "dom": parse_day(self.get_argument("domenica")),
-        }
+        try:
+            schedule = {
+                "lun": parse_day(self.get_argument("lunedi")),
+                "mar": parse_day(self.get_argument("martedi")),
+                "mer": parse_day(self.get_argument("mercoledi")),
+                "gio": parse_day(self.get_argument("giovedi")),
+                "ven": parse_day(self.get_argument("venerdi")),
+                "sab": parse_day(self.get_argument("sabato")),
+                "dom": parse_day(self.get_argument("domenica")),
+            }
+        except ValueError as ex:
+            self.render("ADMIN/add_edit.html", errori=[str(ex)], name=name)
+            return
 
         id = int(id)
         for ente in demo_entities:
@@ -339,6 +413,12 @@ class EditEnteHandler(tornado.web.RequestHandler):
 class DeleteEnteHandler(tornado.web.RequestHandler):
     #cerco prodotto in base al suo id e lo elimino dalla lista dei prodotti e ritorno alla pagina iniziale(/products)
     def post(self, id):
+        # controllo ruolo admin
+        user = self.get_secure_cookie("user")
+        if not user or user.decode() != "admin":
+            self.set_status(403)
+            self.finish("Accesso negato")
+            return
         id = int(id)
 
         for ente in demo_entities:
@@ -437,7 +517,7 @@ class GraficiHandler(tornado.web.RequestHandler):
 
         for risposta in data:
             for key, value in risposta.items():
-                if "In base alle domande selezionare la risposta" in key or "Quanto reputi interessanti i seguenti aspetti dell’attività di volontariato?" in key:
+                if "In base alle domande selezionare la risposta" in key or "Quanto reputi interessanti i seguenti aspetti dell'attività di volontariato?" in key:
                     if value in conteggio_scala:
                         conteggio_scala[value] += 1
 
@@ -454,7 +534,7 @@ class GraficiHandler(tornado.web.RequestHandler):
         conteggio_competenze = {k: 0 for k in competenze_lista}
 
         for risposta in data:
-            val = risposta.get("Cosa pensi di aver imparato dall’esperienza di stage? ", "")
+            val = risposta.get("Cosa pensi di aver imparato dall'esperienza di stage? ", "")
             for c in str(val).split(","):
                 c = c.strip()
                 if c in conteggio_competenze:
@@ -575,17 +655,33 @@ class SceltaHandler(tornado.web.RequestHandler):
                             terzo=terzo)
 
     def post(self):
-        enti = demo_entities
+        # validazione scelte vuote e duplicate
         user = self.get_secure_cookie("user")
+        primo  = self.get_body_argument("primo",  "").strip()
+        secondo = self.get_body_argument("secondo", "").strip()
+        terzo  = self.get_body_argument("terzo",  "").strip()
 
-        primo = self.get_body_argument("primo")
-        secondo = self.get_body_argument("secondo")
-        terzo = self.get_body_argument("terzo")
+        scelte = [s for s in [primo, secondo, terzo] if s]  # rimuovi vuoti
+        errori = []
+
+        if not scelte:
+            errori.append("Devi selezionare almeno una preferenza")
+        if len(scelte) != len(set(scelte)):
+            errori.append("Non puoi scegliere lo stesso ente più volte")
+
+        nomi_validi = {e["name"] for e in demo_entities}
+        for s in scelte:
+            if s not in nomi_validi:
+                errori.append(f"Ente non valido: '{s}'")
+
+        if errori:
+            self.render("STUDENTE/scelta_enti.html", errori=errori, enti=demo_entities,
+                        user=user.decode(), primo=primo, secondo=secondo, terzo=terzo)
+            return
 
         for persona in demo_students:
             if persona["username"] == user.decode():
-                persona["choices"] = [primo, secondo, terzo]
-
+                persona["choices"] = scelte
         self.redirect("/studente/scelta_enti")
 
 
@@ -615,14 +711,23 @@ class QuestionarioStudenteHandler(tornado.web.RequestHandler):
 
 class ReferenteHandler(tornado.web.RequestHandler):
     def get(self):
+        # controllo utente prima di usare user.decode()
         user = self.get_secure_cookie("user")
-        enti = demo_entities
-        for referenti in demo_referent:
-            if referenti["username"] == user.decode():
-                referente = referenti
         if not user:
             self.redirect("/login")
             return
+
+        referente = None
+        for r in demo_referent:
+            if r["username"] == user.decode():
+                referente = r
+                break
+
+        if referente is None:
+            self.set_status(403)
+            self.finish("Accesso negato")
+            return
+
         enti = demo_entities
         studenti_fermi = []
         for persona in demo_students:
@@ -631,8 +736,7 @@ class ReferenteHandler(tornado.web.RequestHandler):
         id_to_name = {e["id"]: e["name"] for e in demo_entities}  #crea un diz con solo id:nome
         error = self.get_argument("error", None)
         self.render("REFERENTE/referente.html", id_to_name=id_to_name, user=user.decode(),
-                    studenti_fermi=studenti_fermi, enti=enti,error=error)
-
+                    studenti_fermi=studenti_fermi, enti=enti, error=error)
 
     def post(self, username):
         ente_id = self.get_body_argument("ente_id")
@@ -659,7 +763,17 @@ class ReferenteHandler(tornado.web.RequestHandler):
         if ente_id == "":
             studente["assigned_entity"] = None
         else:
-            ente_id_val = int(ente_id)
+            # int(ente_id) con gestione errori
+            try:
+                ente_id_val = int(ente_id)
+            except ValueError:
+                self.redirect("/referente?error=ID+ente+non+valido")
+                return
+
+            if not any(e["id"] == ente_id_val for e in demo_entities):
+                self.redirect("/referente?error=Ente+non+trovato")
+                return
+
             for ente in demo_entities:
                 if ente["id"] == ente_id_val:
                     if ente["posti_rimasti"] > 0:
@@ -677,18 +791,53 @@ class ReferenteHandler(tornado.web.RequestHandler):
 
         self.redirect("/referente")
 
+
 class CreaStudenteHandler(tornado.web.RequestHandler):
     def post(self):
+        # controllo utente e ruolo referente
         user = self.get_secure_cookie("user")
-        for referenti in demo_referent:
-            if referenti["username"] == user.decode():
-                scuola=referenti["school"]
+        if not user:
+            self.redirect("/login")
+            return
+
+        referente = None
+        for r in demo_referent:
+            if r["username"] == user.decode():
+                referente = r
                 break
-        nome_cognome=self.get_body_argument("nome_cognome")
-        parte_finale=self.get_body_argument("parte_finale")
-        mail=nome_cognome+"@"+parte_finale
-        demo_students.append({"username": mail, "password": genera_password(), "school": scuola,"choices":[],"entities":None,"assigned_entity":None})
+
+        if referente is None:
+            self.set_status(403)
+            self.finish("Accesso negato")
+            return
+
+        scuola = referente["school"]
+
+        # validazione nome_cognome e parte_finale
+        nome_cognome = self.get_body_argument("nome_cognome", "").strip()
+        parte_finale = self.get_body_argument("parte_finale", "").strip()
+
+        errori = []
+        if not nome_cognome:
+            errori.append("Il nome è obbligatorio")
+        if not parte_finale:
+            errori.append("Il dominio email è obbligatorio")
+
+        if not errori:
+            mail = nome_cognome + "@" + parte_finale
+            if not re.match(r'^[^@]+@[^@]+\.[^@]+$', mail):
+                errori.append("L'email generata non è valida")
+            elif any(s["username"] == mail for s in demo_students):
+                errori.append(f"Esiste già uno studente con email '{mail}'")
+
+        if errori:
+            self.redirect("/referente?error=" + errori[0].replace(" ", "+"))
+            return
+
+        mail = nome_cognome + "@" + parte_finale
+        demo_students.append({"username": mail, "password": genera_password(), "school": scuola, "choices": [], "entities": None, "assigned_entity": None})
         self.redirect("/referente")
+
 
 def make_app():
     return tornado.web.Application([
