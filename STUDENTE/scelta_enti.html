@@ -738,6 +738,13 @@ body {
 <div class="two-col">
   <!-- SINISTRA: preferenze -->
   <div>
+  {% if errori %}
+<div style="color: red; background-color: #ffe0e0; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid red;">
+    {% for errore in errori %}
+        <p><strong>⚠️ {{ errore }}</strong></p>
+    {% end %}
+</div>
+{% end %}
     <form action="/studente/scelta_enti" method="post">
       <div class="pref-card">
         <div class="pref-card-header">

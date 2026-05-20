@@ -205,7 +205,9 @@ class AddEnteHandler(tornado.web.RequestHandler):
             errori.append("La capacità deve essere un numero intero tra 1 e 50")
 
         if errori:
-            self.render("ADMIN/add_edit.html", errori=errori, name=name)
+            self.render("ADMIN/add_edit.html", errori=errori, name=name, contact="", phone="", address="", sector="",
+                        site="", tutor="", tutor_phone="", capacity="", lunedi="", martedi="", mercoledi="", giovedi="",
+                        venerdi="", sabato="", domenica="")
             return
 
         contact = self.get_body_argument("contact")
@@ -244,7 +246,25 @@ class AddEnteHandler(tornado.web.RequestHandler):
                 "dom": parse_day(self.get_argument("domenica")),
             }
         except ValueError as ex:
-            self.render("ADMIN/add_edit.html", errori=[str(ex)], name=name)
+            # Raccogli i valori inseriti dall'utente per ripopolarli
+            valori_inseriti = {
+                "contact": self.get_body_argument("contact", ""),
+                "phone": self.get_body_argument("phone", ""),
+                "address": self.get_body_argument("address", ""),
+                "sector": self.get_body_argument("sector", ""),
+                "site": self.get_body_argument("site", ""),
+                "tutor": self.get_body_argument("tutor", ""),
+                "tutor_phone": self.get_body_argument("tutor_phone", ""),
+                "capacity": self.get_body_argument("capacity", ""),
+                "lunedi": self.get_body_argument("lunedi", ""),
+                "martedi": self.get_body_argument("martedi", ""),
+                "mercoledi": self.get_body_argument("mercoledi", ""),
+                "giovedi": self.get_body_argument("giovedi", ""),
+                "venerdi": self.get_body_argument("venerdi", ""),
+                "sabato": self.get_body_argument("sabato", ""),
+                "domenica": self.get_body_argument("domenica", ""),
+            }
+            self.render("ADMIN/add_edit.html", errori=[str(ex)], name=name, id=None, **valori_inseriti)
             return
 
         #valori base alle variabili
@@ -332,6 +352,10 @@ class EditEnteHandler(tornado.web.RequestHandler):
             self.finish("Accesso negato")
             return
 
+        # Prendi l'id dal form (se presente) o dall'URL
+        id_da_url = id
+        id = self.get_body_argument("id", id_da_url)
+
         # validazione campi name e capacity
         errori = []
         name = self.get_body_argument("name", "").strip()
@@ -352,7 +376,10 @@ class EditEnteHandler(tornado.web.RequestHandler):
             errori.append("La capacità deve essere un numero intero tra 1 e 50")
 
         if errori:
-            self.render("ADMIN/add_edit.html", errori=errori, name=name)
+            self.render("ADMIN/add_edit.html", errori=errori, name=name, id=None, contact="", phone="", address="",
+                        sector="",
+                        site="", tutor="", tutor_phone="", capacity="", lunedi="", martedi="", mercoledi="", giovedi="",
+                        venerdi="", sabato="", domenica="")
             return
 
         contact = self.get_body_argument("contact")
@@ -391,7 +418,25 @@ class EditEnteHandler(tornado.web.RequestHandler):
                 "dom": parse_day(self.get_argument("domenica")),
             }
         except ValueError as ex:
-            self.render("ADMIN/add_edit.html", errori=[str(ex)], name=name)
+            # Raccogli i valori inseriti dall'utente per ripopolarli
+            valori_inseriti = {
+                "contact": self.get_body_argument("contact", ""),
+                "phone": self.get_body_argument("phone", ""),
+                "address": self.get_body_argument("address", ""),
+                "sector": self.get_body_argument("sector", ""),
+                "site": self.get_body_argument("site", ""),
+                "tutor": self.get_body_argument("tutor", ""),
+                "tutor_phone": self.get_body_argument("tutor_phone", ""),
+                "capacity": self.get_body_argument("capacity", ""),
+                "lunedi": self.get_body_argument("lunedi", ""),
+                "martedi": self.get_body_argument("martedi", ""),
+                "mercoledi": self.get_body_argument("mercoledi", ""),
+                "giovedi": self.get_body_argument("giovedi", ""),
+                "venerdi": self.get_body_argument("venerdi", ""),
+                "sabato": self.get_body_argument("sabato", ""),
+                "domenica": self.get_body_argument("domenica", ""),
+            }
+            self.render("ADMIN/add_edit.html", errori=[str(ex)], name=name, id=id, **valori_inseriti)
             return
 
         id = int(id)
@@ -652,7 +697,7 @@ class SceltaHandler(tornado.web.RequestHandler):
                     secondo = persona["choices"][1]
                     terzo = persona["choices"][2]
                 self.render("STUDENTE/scelta_enti.html", enti=enti, user=user.decode(), primo=primo, secondo=secondo,
-                            terzo=terzo)
+                            terzo=terzo, errori=None)
 
     def post(self):
         # validazione scelte vuote e duplicate
@@ -696,7 +741,7 @@ class EditSceltaHandler(tornado.web.RequestHandler):
             if persona["username"] == user.decode():
                 persona["choices"] = [primo, secondo, terzo]
         self.render("STUDENTE/scelta_enti.html", user=user.decode(), primo=primo, terzo=terzo, secondo=secondo,
-                    enti=enti)
+                    enti=enti, errori=None)
 
 
 class QuestionarioStudenteHandler(tornado.web.RequestHandler):
@@ -724,8 +769,7 @@ class ReferenteHandler(tornado.web.RequestHandler):
                 break
 
         if referente is None:
-            self.set_status(403)
-            self.finish("Accesso negato")
+            self.redirect("/login")
             return
 
         enti = demo_entities
