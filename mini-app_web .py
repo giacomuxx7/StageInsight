@@ -677,7 +677,17 @@ class ReferenteHandler(tornado.web.RequestHandler):
 
         self.redirect("/referente")
 
-
+class CreaStudenteHandler(tornado.web.RequestHandler):
+    def post(self):
+        user = self.get_secure_cookie("user")
+        for referenti in demo_referent:
+            if referenti["username"] == user.decode():
+                scuola=referenti["school"]
+        nome_cognome=self.get_body_argument("nome_cognome")
+        parte_finale=self.get_body_argument("parte_finale")
+        mail=nome_cognome+"@"+parte_finale
+        demo_students.append({"username": mail, "password": genera_password(), "school": scuola,"choices":[],"entities":None,"assigned_entity":None})
+        self.redirect("/referente")
 def make_app():
     return tornado.web.Application([
         (r"/login", LoginHandler),
@@ -686,6 +696,7 @@ def make_app():
         (r"/studente/questionario", QuestionarioStudenteHandler),
         (r"/referente", ReferenteHandler),
         (r"/referente/assegna/([^/]+)", ReferenteHandler),
+        (r"/referente/crea", CreaStudenteHandler),
         (r"/enti", EnteHandler),
         (r"/enti/add", AddEnteHandler),
         (r"/enti/edit/([0-9]+)", EditEnteHandler),
