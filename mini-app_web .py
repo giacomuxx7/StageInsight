@@ -683,11 +683,13 @@ class CreaStudenteHandler(tornado.web.RequestHandler):
         for referenti in demo_referent:
             if referenti["username"] == user.decode():
                 scuola=referenti["school"]
+                break
         nome_cognome=self.get_body_argument("nome_cognome")
         parte_finale=self.get_body_argument("parte_finale")
         mail=nome_cognome+"@"+parte_finale
         demo_students.append({"username": mail, "password": genera_password(), "school": scuola,"choices":[],"entities":None,"assigned_entity":None})
         self.redirect("/referente")
+
 def make_app():
     return tornado.web.Application([
         (r"/login", LoginHandler),
