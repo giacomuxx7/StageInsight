@@ -736,109 +736,145 @@ body {
 
 <!-- PAGE CONTENT -->
 <div class="page-body">
-  <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
-    {% if studenti_fermi %}
-      <!-- Prima tabella: studenti fermi -->
-      <div style="flex: 1; min-width: 260px;">
-        <div class="tbl-wrap">
-          <div class="tbl-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Studente</th>
-                  <th>Scuola</th>
-                  <th>Preferenze</th>
-                  <th>Ente assegnato</th>
-                  <th>Assegna</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for studente in studenti_fermi %}
-                <tr>
-                  <td>{{ studente['username'] }}</td>
-                  <td><span class="school-badge">{{ studente['school'] }}</span></td>
-                  <td>
-                    <div class="choices-list">
-                      {% set i = 1 %}
-                      {% for scelta in studente['choices'] %}
-                        <span class="choice-pill">
-                          <span class="choice-num">{{ i }}</span>
-                          {{ scelta }}
-                        </span>
-                        {% set i = i + 1 %}
-                      {% end %}
-                    </div>
-                  </td>
-                  <td>
-                    {% if studente['assigned_entity'] is not None %}
-                      <span class="assigned-yes">
-                        <span class="dot dot-green"></span>
-                        {{ id_to_name[studente['assigned_entity']] }}
-                      </span>
-                    {% else %}
-                      <span class="assigned-no">
-                        <span class="dot dot-gray"></span>
-                        Non assegnato
-                      </span>
-                    {% end %}
-                  </td>
-                  <td class="assign-cell">
-                    <form method="post" action="/referente/assegna/{{ studente['username'] }}">
-                      <select name="ente_id">
-                        <option value="">— Seleziona —</option>
-                        {% for ente in enti %}
-                          <option value="{{ ente['id'] }}" {% if studente['assigned_entity'] == ente['id'] %}selected{% end %}>
-                            {{ ente['name'] }}
-                          </option>
-                        {% end %}
-                      </select>
-                      <input type="submit" value="Salva" class="btn-salva">
-                    </form>
-                  </td>
-                </tr>
-                {% end %}
-              </tbody>
-            </table>
-          </div>
+  <!-- RIGA CON DUE COLONNE AFFIANCATE -->
+  <div style="display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap;">
+
+    <!-- COLONNA SINISTRA: AGGIUNGI STUDENTE -->
+    <div style="flex: 1; min-width: 280px;">
+      <div class="tbl-wrap">
+        <div class="tbl-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th colspan="6">Aggiungi Studente</th>
+              </tr>
+              <tr>
+                <th>Nome/Cognome</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>Dominio</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="text" id="nome_cognome" placeholder="es. mario.rossi" style="width:100%;"></td>
+                <td>+</td>
+                <td>@</td>
+                <td>+</td>
+                <td><input type="text" id="parte_finale" placeholder="es. scuola.it" style="width:100%;"></td>
+                <td><button class="btn-primary" onclick="creaStudente()" style="white-space: nowrap;">Crea</button></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
+    </div>
 
-      <!-- Seconda tabella: enti e posti liberi -->
-      <div style="flex: 1; min-width: 260px;">
-        <div class="tbl-wrap">
-          <div class="tbl-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Ente</th>
-                  <th>Posti Liberi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for ente in enti %}
-                <tr>
-                  <td>{{ ente['name'] }}</td>
-                  <td>{{ ente['posti_rimasti'] }}</td>
-                </tr>
-                {% end %}
-              </tbody>
-            </table>
-          </div>
+    <!-- COLONNA DESTRA: POSTI LIBERI PER ENTE -->
+    <div style="flex: 1; min-width: 280px;">
+      <div class="tbl-wrap">
+        <div class="tbl-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">📊 Posti disponibili per ente</th>
+              </tr>
+              <tr>
+                <th>Ente</th>
+                <th>Posti Liberi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ente in enti %}
+              <tr>
+                <td>{{ ente['name'] }}</td>
+                <td><span class="badge {% if ente['posti_rimasti'] > 0 %}badge-green{% else %}badge-gray{% end %}">{{ ente['posti_rimasti'] }}</span></td>
+              </tr>
+              {% end %}
+            </tbody>
+          </table>
         </div>
       </div>
-    {% else %}
-      <p style="color:#888; font-size:14px;">Nessuno studente presente</p>
-    {% end %}
-  </div> <!-- CHIUDE IL FLEX CONTAINER -->
-</div> <!-- CHIUDE page-body -->
+    </div>
+  </div>
 
-
-
+  <!-- SECONDA RIGA: TABELLA STUDENTI IN ATTESA (sotto, larghezza piena) -->
+  {% if studenti_fermi %}
+  <div class="tbl-wrap">
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Studente</th>
+            <th>Scuola</th>
+            <th>Preferenze</th>
+            <th>Ente assegnato</th>
+            <th>Assegna</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for studente in studenti_fermi %}
+          <tr>
+            <td>{{ studente['username'] }}</td>
+            <td><span class="school-badge">{{ studente['school'] }}</span></td>
+            <td>
+              <div class="choices-list">
+                {% set i = 0 %}
+                {% for scelta in studente['choices'] %}
+                  {% set i = i + 1 %}
+                  <span class="choice-pill">
+                    <span class="choice-num">{{ i }}</span>
+                    {{ scelta }}
+                  </span>
+                {% end %}
+              </div>
+            </td>
+            <td>
+              {% if studente['assigned_entity'] is not None %}
+                <span class="assigned-yes">
+                  <span class="dot dot-green"></span>
+                  {{ id_to_name[studente['assigned_entity']] }}
+                </span>
+              {% else %}
+                <span class="assigned-no">
+                  <span class="dot dot-gray"></span>
+                  Non assegnato
+                </span>
+              {% end %}
+            </td>
+            <td class="assign-cell">
+              <form method="post" action="/referente/assegna/{{ studente['username'] }}">
+                <select name="ente_id">
+                  <option value="">— Seleziona —</option>
+                  {% for ente in enti %}
+                    <option value="{{ ente['id'] }}" {% if studente['assigned_entity'] == ente['id'] %}selected{% end %}>
+                      {{ ente['name'] }}
+                    </option>
+                  {% end %}
+                </select>
+                <input type="submit" value="Salva" class="btn-salva">
+              </form>
+            </td>
+          </tr>
+          {% end %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+    <div style="background: var(--csv-green-light); border: 1px solid var(--csv-green-mid); border-radius: 10px; padding: 15px 20px; text-align: center;">
+      <span style="color: var(--csv-green-dark);">✅ Nessuno studente in attesa di assegnazione</span>
+    </div>
+  {% end %}
+</div>
 
 <footer class="csv-footer">
   <span class="csv-footer-text"><strong>CSV Terre Estensi ODV</strong> · Viale della Cittadella, 30 · 41123 Modena · 059 212003</span>
   <a href="https://www.csvterrestensi.it" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:11px;">csvterrestensi.it →</a>
 </footer>
+
 <!-- NOTIFICA FLOTTANTE (NASCOSTA DI DEFAULT) -->
 <div id="notificationToast" class="notification-toast" style="display: none;">
     <div class="notification-content">
@@ -858,10 +894,8 @@ body {
         const textSpan = document.getElementById('notificationText');
         const iconDiv = toast.querySelector('.notification-icon');
 
-        // Imposta il messaggio
         textSpan.innerText = message;
 
-        // Imposta l'icona in base al tipo
         if (type === 'success') {
             iconDiv.innerHTML = '✅';
             toast.className = 'notification-toast success';
@@ -873,16 +907,13 @@ body {
             toast.className = 'notification-toast';
         }
 
-        // Mostra la notifica
         toast.style.display = 'block';
 
-        // Auto-scomparsa dopo 5 secondi
         setTimeout(() => {
             closeNotification();
         }, 5000);
     }
 
-    // Funzione per chiudere la notifica
     function closeNotification() {
         const toast = document.getElementById('notificationToast');
         toast.classList.add('fade-out');
@@ -892,10 +923,33 @@ body {
         }, 300);
     }
 
-    // Mostra errore se presente (da Python)
     {% if error %}
     showNotification('{{ error }}', 'error');
     {% end %}
+
+    function creaStudente() {
+        var nome = document.getElementById('nome_cognome').value;
+        var dominio = document.getElementById('parte_finale').value;
+
+        if (!nome || !dominio) {
+            showNotification('Compila entrambi i campi', 'error');
+            return;
+        }
+
+        fetch('/referente/crea', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'nome_cognome=' + encodeURIComponent(nome) + '&parte_finale=' + encodeURIComponent(dominio)
+        }).then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            }
+        }).catch(error => {
+            showNotification('Errore durante la creazione', 'error');
+        });
+    }
 </script>
 </body>
 </html>
