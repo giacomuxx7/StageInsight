@@ -4,6 +4,7 @@ import tornado.escape
 import json
 import pandas as pd
 import time
+import random
 from collections import defaultdict
 
 # ── BRUTE FORCE PROTECTION ──────────────────────────────────────────────────
@@ -41,6 +42,18 @@ def _record_failure(username: str):
 
 def _clear_failures(username: str):
     _failed_attempts.pop(username, None)
+
+parole = ["Nebbia", "Fulmine", "Quaderno", "Astronave", "Cactus", "Lampione", "Cascata", "Vulcano", "Ombrello", "Biscotto", "Tornado", "Marmotta", "Pixel", "Satellitare", "Drago", "Cometa", "Tostapane", "Girasole", "Tempesta", "Bussola", "Pinguino", "Prisma", "Zaino", "Ciclone", "Diamante", "Meteora", "Lampadina", "Tastiera", "Ruggine", "Cannocchiale", "Foresta", "Corallo", "Aquila", "Origami", "Monolite", "Vortice", "Fenice", "Circuito", "Galassia", "Castoro", "Binocolo", "Radar", "Cratere", "Mandarino", "Pendolo", "Scogliera", "Marinaio", "Clessidra", "Fossile", "Zaffiro"]
+
+simboli = ["!", "@", "#", "$", "%", "&", "*", "?"]
+
+def genera_password():
+    parola = random.choice(parole)
+    numero = random.randint(0, 99)  # 2 cifre
+    simbolo = random.choice(simboli)
+
+    password = f"{parola}{numero}{simbolo}"
+    return password
 
 demo_entities = [
     {"id": 0, "name": "Caritas", "contact": "info@caritas.it", "phone": "02-1234567",
